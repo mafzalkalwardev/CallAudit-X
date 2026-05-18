@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum CallStatus {
+  uploaded
+  analyzing
+  analyzed
+  failed
+}
+
+enum Sentiment {
+  Positive
+  Neutral
+  Negative
+}
+
+enum VerificationStatus {
+  pending
+  correct
+  incorrect
+}
+
+model User {
+  id                 String               @id @default(cuid())
+  name               String
+  email              String               @unique
+  passwordHash       String
+  role               Role                 @default(CUSTOMER)
+  planId             String?
+  stripeCustomerId   String?
+  subscriptionStatus String               @default("inactive")
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  plan               Plan?                @relation(fields: [planId], references: [id])
+  calls              Call[]
+  verifications      ReviewVerification[]
+  payments           Payment[]
+}
+
+model Plan {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  price            Int
+  monthlyCallLimit Int
+  features         String[]
+  stripePriceId    String?
+  users            User[]
+}
+
+model Call {
+  id           String               @id @default(cuid())
+  userId       String
+  title        String
+  audioUrl     String
+  fileName     String
+  fileSize     Int
+  duration     Int?
+  agentName    String?
+  campaignName String?
+  callType     String?
+  notes        String?
+  status       CallStatus           @default(uploaded)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  report       AIReport?
+  verification ReviewVerification?
+}
+
+model AIReport {
+  id                 String    @id @default(cuid())
+  callId             String    @unique
+  transcript         String
+  summary            String
+  categoryId         String
+  sentiment          Sentiment
+  customerIntent     String
+  agentScore         Int
+  leadQualityScore   Int
+  callQualityScore   Int
+  confidenceScore    Int
+  keywords           String[]
+  mistakes           String[]
+  recommendedAction  String
+  customerMood       String
+  callOutcome        String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  call               Call      @relation(fields: [callId], references: [id], onDelete: Cascade)
+  category           Category  @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id                     String               @id @default(cuid())
+  name                   String               @unique
+  description            String
+  color                  String
+  icon                   String
+  reports                AIReport[]
+  correctedVerifications ReviewVerification[] @relation("CorrectedCategory")
+}
+
+model ReviewVerification {
+  id                  String             @id @default(cuid())
+  callId              String             @unique
+  userId              String
+  status              VerificationStatus @default(pending)
+  correctedCategoryId String?
+  feedback            String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  call                Call               @relation(fields: [callId], references: [id], onDelete: Cascade)
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  correctedCategory   Category?          @relation("CorrectedCategory", fields: [correctedCategoryId], references: [id])
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  userId          String
+  stripeSessionId String?  @unique
+  amount          Int
+  currency        String   @default("usd")
+  status          String
+  planName        String
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
