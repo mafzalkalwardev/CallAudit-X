@@ -1,24 +1,58 @@
+import { BarChart3, CheckCircle2, Clock } from "lucide-react";
 import { PublicShell } from "@/components/public/PublicShell";
-import { ReviewCard, SectionHeading } from "@/components/public/MarketingComponents";
+import { GlassCard, ReviewCard, SectionHeading, StatusBadge } from "@/components/public/MarketingComponents";
 import { mockCompanies, reviews } from "@/lib/public-data";
 
 export default function ReviewsPage() {
   return (
     <PublicShell>
-      <main className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Customer Reviews" title="Teams use CallAudit X to turn recordings into reviewable evidence" subtitle="Mock customer stories focused on transcription, AI audit reports, scorecards, and human verification." />
-        <div className="mx-auto mt-12 max-w-3xl rounded-3xl border border-white/10 bg-slate-900/70 p-8 text-center">
-          <p className="text-6xl font-semibold text-white">4.9/5</p>
-          <p className="mt-3 text-slate-400">Average rating from sales, support, and QA leaders</p>
-        </div>
-        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{reviews.map((review) => <ReviewCard key={review.name} {...review} />)}</div>
-        <div className="mt-16 rounded-3xl border border-white/10 bg-slate-900/70 p-8">
-          <p className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Mock customer logos</p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">{mockCompanies.map((company) => <div key={company} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center font-semibold text-slate-300">{company}</div>)}</div>
-        </div>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {["Reduced transcript review time by 64%", "Improved AI audit verification visibility", "Standardized scorecards across call reviewers"].map((title) => <div key={title} className="rounded-2xl border border-cyan-300/15 bg-cyan-300/5 p-6"><h3 className="font-semibold text-white">{title}</h3><p className="mt-3 text-sm leading-6 text-slate-400">Case study preview for transcript-backed sales and support QA operations.</p></div>)}
-        </div>
+      <main>
+        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Customer Reviews"
+            title="QA leaders use CallAudit X to turn recordings into reviewable evidence"
+            subtitle="Mock customer stories focused on transcription, AI audit reports, scorecards, and human verification."
+          />
+
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {[
+              { icon: CheckCircle2, value: "4.9/5", label: "Average quality rating", tone: "success" as const },
+              { icon: Clock, value: "64%", label: "Less manual review time", tone: "cyan" as const },
+              { icon: BarChart3, value: "3.2x", label: "More calls audited weekly", tone: "blue" as const }
+            ].map((item) => (
+              <GlassCard key={item.label} className="p-6 text-center">
+                <div className="mx-auto grid h-11 w-11 place-items-center rounded-xl border border-[#22D3EE]/25 bg-[#22D3EE]/10 text-[#22D3EE]">
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <p className="mt-4 text-4xl font-semibold text-[#F8FAFC]">{item.value}</p>
+                <p className="mt-2 text-sm text-[#94A3B8]">{item.label}</p>
+              </GlassCard>
+            ))}
+          </div>
+
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{reviews.map((review) => <ReviewCard key={review.name} {...review} />)}</div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+          <GlassCard className="p-8">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+              <div>
+                <StatusBadge tone="neutral">Customer teams</StatusBadge>
+                <h2 className="mt-4 text-3xl font-semibold text-[#F8FAFC]">Built for sales, support, QA, and operations teams.</h2>
+              </div>
+              <p className="max-w-xl text-sm leading-6 text-[#94A3B8]">
+                The public stories are demo content, but the workflow mirrors the real platform path from transcript to verified audit analytics.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+              {mockCompanies.map((company) => (
+                <div key={company} className="rounded-xl border border-[rgba(148,163,184,0.16)] bg-[#07111F]/70 p-4 text-center font-semibold text-slate-300">
+                  {company}
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        </section>
       </main>
     </PublicShell>
   );
