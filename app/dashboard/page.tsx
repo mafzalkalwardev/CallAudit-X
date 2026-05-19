@@ -4,14 +4,17 @@ import { ChartCard, CategoryPie, TimeLine } from "@/components/Charts";
 import { Badge, LinkButton, PageHeader, StatCard } from "@/components/ui";
 import { customerAnalytics } from "@/lib/analytics";
 import { getSession } from "@/lib/auth";
-import { getOrCreateDemoCustomer } from "@/lib/demo-user";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const session = await getSession();
-  const demoUser = session ? null : await getOrCreateDemoCustomer();
-  const data = await customerAnalytics(session?.id || demoUser!.id);
+  if (!session) {
+    redirect("/login");
+  }
+
+  const data = await customerAnalytics(session.id);
 
   return (
     <>
@@ -51,15 +54,13 @@ export default async function DashboardPage() {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-[#F5F7FB] text-left text-xs uppercase tracking-[0.14em] text-[#64748B]">
-              <tr>
-                <th className="p-4">Call</th>
-                <th className="p-4">Category</th>
-                <th className="p-4">Verification</th>
-                <th className="p-4 text-right">Action</th>
-              </tr>
-            </thead>
             <tbody className="divide-y divide-[#EEF3F9]">
+              <tr className="bg-[#F5F7FB] text-left text-xs uppercase tracking-[0.14em] text-[#64748B]">
+                <td className="p-4 font-bold">Call Title</td>
+                <td className="p-4 font-bold">Category</td>
+                <td className="p-4 font-bold">Verification</td>
+                <td className="p-4 font-bold text-right">Action</td>
+              </tr>
               {data.recentCalls.map((call: any) => (
                 <tr key={call.id} className="transition hover:bg-[#F5F7FB]">
                   <td className="p-4 font-semibold text-[#0F172A]">{call.title || call.fileName}</td>
@@ -79,7 +80,7 @@ export default async function DashboardPage() {
               {!data.recentCalls.length && (
                 <tr>
                   <td colSpan={4} className="p-8 text-center text-[#94A3B8]">
-                    No recent calls found.
+                    No recent calls found. Upload call audio in the 'Upload Calls' section to start!
                   </td>
                 </tr>
               )}

@@ -59,31 +59,36 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative">
-            <div
-              className="relative min-h-[480px] overflow-hidden rounded-2xl border border-[#D8E1EE] bg-cover bg-center shadow-lg"
-              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1600&q=80')" }}
-              role="img"
-              aria-label="Customer support and analytics team workspace"
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-white/20 to-transparent" />
-              <div className="absolute inset-x-4 bottom-4">
-                <HeroDashboardPreview />
-              </div>
+          <div className="relative flex items-center justify-center lg:mt-0 mt-8">
+            <div className="w-full">
+              <HeroDashboardPreview />
             </div>
           </div>
         </section>
 
         {/* Trust bar — company logos */}
-        <section className="border-y border-[#D8E1EE] bg-[#EEF3F9] py-8">
+        <section className="border-y border-[#D8E1EE] bg-[#F5F7FB] py-10">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p className="mb-6 text-center text-xs font-semibold uppercase tracking-widest text-[#94A3B8]">Trusted by teams at</p>
-            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
-              {mockCompanies.map((company) => (
-                <div key={company} className="rounded-lg border border-[#D8E1EE] bg-white px-5 py-2.5 text-sm font-bold text-[#64748B] shadow-sm">
-                  {company}
-                </div>
-              ))}
+            <p className="mb-6 text-center text-xs font-bold uppercase tracking-widest text-[#64748B]">Trusted by scaling B2B teams at</p>
+            <div className="flex flex-wrap items-center justify-center gap-5 md:gap-8">
+              {mockCompanies.map((company, index) => {
+                const colors = [
+                  "from-[#2563EB] to-[#0EA5E9]",
+                  "from-[#10B981] to-[#059669]",
+                  "from-[#F59E0B] to-[#D97706]",
+                  "from-[#8B5CF6] to-[#7C3AED]",
+                  "from-[#EC4899] to-[#DB2777]",
+                  "from-[#06B6D4] to-[#0891B2]"
+                ];
+                return (
+                  <div key={company} className="flex items-center gap-2.5 rounded-xl border border-[#D8E1EE] bg-white px-5 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition duration-200">
+                    <span className={`h-3 w-3 rounded-full bg-gradient-to-tr ${colors[index % colors.length]}`} />
+                    <span className="font-sans font-extrabold tracking-tight text-[#0F172A] text-sm">
+                      {company}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

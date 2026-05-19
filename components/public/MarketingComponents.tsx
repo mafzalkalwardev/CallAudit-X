@@ -223,9 +223,9 @@ export function AITranscriptPreview({ compact = false }: { compact?: boolean }) 
       </div>
       <div className={cn("mt-4 space-y-3", compact ? "text-xs" : "text-sm")}>
         {rows.map((row) => (
-          <div key={`${row.time}-${row.speaker}`} className="grid grid-cols-[58px_92px_1fr] gap-3 rounded-xl border border-[#EEF3F9] bg-[#F5F7FB] p-3 max-sm:grid-cols-1">
-            <span className="font-mono text-xs text-[#94A3B8]">{row.time}</span>
-            <span className={cn("w-fit rounded-full border px-2 py-0.5 text-xs font-semibold", toneStyles[row.tone])}>{row.speaker}</span>
+          <div key={`${row.time}-${row.speaker}`} className="grid grid-cols-[58px_92px_1fr] items-start gap-3 rounded-xl border border-[#EEF3F9] bg-[#F5F7FB] p-3 max-sm:grid-cols-1">
+            <span className="font-mono text-xs text-[#94A3B8] mt-0.5">{row.time}</span>
+            <span className={cn("w-fit text-center rounded-full border px-2.5 py-0.5 text-xs font-semibold", toneStyles[row.tone])}>{row.speaker}</span>
             <p className="leading-6 text-[#334155]">{row.text}</p>
           </div>
         ))}
@@ -395,28 +395,67 @@ export function PricingCard({
   );
 }
 
-export function ReviewCard({ quote, name, role, company }: { quote: string; name: string; role: string; company: string }) {
+export function ReviewCard({ 
+  quote, 
+  name, 
+  role, 
+  company, 
+  photoUrl, 
+  rating = 5, 
+  companyBadge 
+}: { 
+  quote: string; 
+  name: string; 
+  role: string; 
+  company: string;
+  photoUrl?: string;
+  rating?: number;
+  companyBadge?: string;
+}) {
   const initials = name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
   const colors = ["bg-[#EFF6FF] text-[#2563EB]", "bg-[#F0FDF4] text-[#15803D]", "bg-[#FFF7ED] text-[#C2410C]", "bg-[#F5F3FF] text-[#7C3AED]", "bg-[#FEF9EC] text-[#B45309]", "bg-[#F0FAFA] text-[#0F766E]"];
   const colorIdx = name.charCodeAt(0) % colors.length;
 
   return (
     <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -4 }} transition={{ duration: 0.25 }}>
-      <GlassCard className="h-full p-6">
-        <div className="flex gap-1 text-[#F59E0B]">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className="h-4 w-4 fill-current" />
-          ))}
-        </div>
-        <p className="mt-5 text-sm leading-7 text-[#334155]">&ldquo;{quote}&rdquo;</p>
-        <div className="mt-6 flex items-center gap-3 border-t border-[#EEF3F9] pt-4">
-          <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold", colors[colorIdx])}>
-            {initials}
+      <GlassCard className="h-full p-6 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex gap-1 text-[#F59E0B]">
+              {Array.from({ length: rating }).map((_, i) => (
+                <Star key={i} className="h-4 w-4 fill-current" />
+              ))}
+            </div>
+            {companyBadge ? (
+              <span className="rounded-md border border-[#2563EB]/25 bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2563EB]">
+                {companyBadge}
+              </span>
+            ) : null}
           </div>
-          <div>
-            <p className="font-semibold text-[#0F172A]">{name}</p>
-            <p className="mt-0.5 text-xs text-[#64748B]">
-              {role}, {company}
+          <p className="mt-5 text-sm leading-7 text-[#334155] italic">&ldquo;{quote}&rdquo;</p>
+        </div>
+
+        <div className="mt-6 flex items-center gap-3 border-t border-[#EEF3F9] pt-4">
+          {photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img 
+              src={photoUrl} 
+              alt={name} 
+              className="h-10 w-10 rounded-full object-cover border border-[#D8E1EE]"
+              onError={(e) => {
+                // Remove img element fallback to initials
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          ) : (
+            <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold", colors[colorIdx])}>
+              {initials}
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="font-bold text-[#0F172A] text-sm truncate">{name}</p>
+            <p className="text-xs text-[#64748B] truncate">
+              {role} • <span className="font-semibold">{company}</span>
             </p>
           </div>
         </div>

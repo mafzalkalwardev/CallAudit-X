@@ -43,6 +43,8 @@ model User {
   planId             String?
   stripeCustomerId   String?
   subscriptionStatus String               @default("inactive")
+  resetToken         String?
+  resetTokenExpiry   DateTime?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   plan               Plan?                @relation(fields: [planId], references: [id])

@@ -29,9 +29,14 @@ export function Topbar({ user, admin = false }: { user: ShellUser; admin?: boole
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    // Clear auth cookies by navigating to logout endpoint (safe redirect to login)
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
     router.push("/login");
+    router.refresh();
     setDropdownOpen(false);
   };
 

@@ -45,15 +45,60 @@ export const workflow = [
 ];
 
 export const reviews = [
-  { name: "Maya Chen", role: "Sales Manager", company: "Northstar CRM", quote: "The transcript plus audit report gives us a real coaching artifact for every sales call." },
-  { name: "Owen Ross", role: "Call Center Owner", company: "BrightLine Voice", quote: "We no longer review calls blindly. The score breakdown tells managers where to listen first." },
-  { name: "Priya Shah", role: "Support Lead", company: "HelioDesk", quote: "Verification is the key. Our reviewers can correct AI categories and keep accuracy visible." },
-  { name: "Daniel Ford", role: "QA Manager", company: "ScalePoint", quote: "The workflow finally connects audio evidence, transcript, audit findings, and QA scores." },
-  { name: "Alina Brooks", role: "Startup Founder", company: "LeadLayer", quote: "Lead quality detection helps us prioritize callbacks from inbound sales conversations." },
-  { name: "Marcus Lee", role: "Revenue Ops", company: "OrbitWorks", quote: "The audit pipeline makes call outcomes easy to report without another spreadsheet." },
-  { name: "Sofia Martin", role: "Customer Success", company: "CarePilot", quote: "The timestamped transcript and recommended action make escalations much easier to handle." },
-  { name: "Ibrahim Khan", role: "Operations Director", company: "MetroAssist", quote: "Bulk upload into AI auditing changed our weekly quality-review rhythm." },
-  { name: "Emma Walsh", role: "Support QA", company: "CloudRelay", quote: "This feels purpose-built for call QA, not a generic dashboard with call labels." }
+  { 
+    name: "Maya Chen", 
+    role: "VP of Quality Assurance", 
+    company: "Northstar CRM", 
+    quote: "The transcript plus audit report gives us a real coaching artifact for every sales call. We reduced customer escalation rates by 35% in our first quarter.", 
+    photoUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&h=150&q=80",
+    rating: 5,
+    companyBadge: "CRM Lead"
+  },
+  { 
+    name: "Owen Ross", 
+    role: "Director of Call Center Operations", 
+    company: "BrightLine Voice", 
+    quote: "We no longer review calls blindly. The automated agent scorecards tell managers exactly where to listen first, saving us 15 hours of QA per week.", 
+    photoUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80",
+    rating: 5,
+    companyBadge: "Voice Ops"
+  },
+  { 
+    name: "Priya Shah", 
+    role: "Global Customer Support Lead", 
+    company: "HelioDesk", 
+    quote: "Verification is the key. Our reviewers can correct AI categories and keep accuracy completely visible. It built instant trust with the support agents.", 
+    photoUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&h=150&q=80",
+    rating: 5,
+    companyBadge: "Support"
+  },
+  { 
+    name: "Daniel Ford", 
+    role: "QA Senior Manager", 
+    company: "ScalePoint", 
+    quote: "The workflow finally connects audio evidence, transcript, audit findings, and QA scores in one dashboard. Flawless execution and super clean design.", 
+    photoUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&h=150&q=80",
+    rating: 5,
+    companyBadge: "QA Enterprise"
+  },
+  { 
+    name: "Alina Brooks", 
+    role: "Head of Growth & Lead Intake", 
+    company: "LeadLayer", 
+    quote: "Lead quality detection helps us prioritize callbacks from high-intent inbound sales conversations. It paid for itself within the first 14 days.", 
+    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80",
+    rating: 5,
+    companyBadge: "Growth"
+  },
+  { 
+    name: "Marcus Lee", 
+    role: "Head of Revenue Operations", 
+    company: "OrbitWorks", 
+    quote: "The audit pipeline makes call outcomes easy to report without manual spreadsheets. The integration with our custom CRM workflow was seamless.", 
+    photoUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&h=150&q=80",
+    rating: 5,
+    companyBadge: "RevOps"
+  }
 ];
 
 export const plans = [
@@ -69,4 +114,4 @@ export const painPoints = [
   { icon: "Cloud", title: "Insights arrive too late", description: "Leaders need the audit loop to update analytics as soon as calls are reviewed." }
 ];
 
-export const mockCompanies = ["Northstar", "HelioDesk", "ScalePoint", "LeadLayer", "OrbitWorks", "CloudRelay"];
+export const mockCompanies = ["Northstar CRM", "HelioDesk", "ScalePoint", "LeadLayer", "OrbitWorks", "CloudRelay"];

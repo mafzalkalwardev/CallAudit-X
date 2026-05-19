@@ -179,7 +179,7 @@ export default function TranscriptionDemoPage() {
                       />
                     ))}
                   </div>
-                  <p className="mt-2 text-xs text-[#94A3B8]">Sample audio — add .mp3 file to /public/sample-audio/ for real playback</p>
+                  <p className="mt-2 text-xs text-[#475569] font-medium">Sample audio — add .mp3 file to /public/sample-audio/ for real playback</p>
                 </div>
               </div>
             </Card>

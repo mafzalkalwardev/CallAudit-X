@@ -47,11 +47,24 @@ export default function ReviewsPage() {
               </p>
             </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
-              {mockCompanies.map((company) => (
-                <div key={company} className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4 text-center font-semibold text-[#64748B]">
-                  {company}
-                </div>
-              ))}
+              {mockCompanies.map((company, index) => {
+                const colors = [
+                  "from-[#2563EB] to-[#0EA5E9]",
+                  "from-[#10B981] to-[#059669]",
+                  "from-[#F59E0B] to-[#D97706]",
+                  "from-[#8B5CF6] to-[#7C3AED]",
+                  "from-[#EC4899] to-[#DB2777]",
+                  "from-[#06B6D4] to-[#0891B2]"
+                ];
+                return (
+                  <div key={company} className="flex items-center justify-center gap-2.5 rounded-xl border border-[#D8E1EE] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-200">
+                    <span className={`h-2.5 w-2.5 rounded-full bg-gradient-to-tr ${colors[index % colors.length]} shrink-0`} />
+                    <span className="font-sans font-extrabold tracking-tight text-[#0F172A] text-xs">
+                      {company}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </GlassCard>
         </section>

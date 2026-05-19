@@ -27,14 +27,14 @@ export function ProcessingPipeline({ currentStep, isError = false, errorMessage 
       {/* Timeline */}
       <div className="relative">
         {/* Connecting line */}
-        <div className="absolute left-6 top-12 h-[calc(100%-3rem)] w-0.5 bg-slate-800" />
+        <div className="absolute left-6 top-12 h-[calc(100%-3rem)] w-0.5 bg-[#D8E1EE]" />
 
         {/* Steps */}
         <div className="space-y-6">
           {steps.map((step, index) => {
             const isActive = index === currentIndex;
             const isCompleted = index < currentIndex;
-            const isError = currentStep === "failed";
+            const isErrorState = currentStep === "failed";
 
             return (
               <div key={step.id} className="relative flex gap-4">
@@ -42,22 +42,27 @@ export function ProcessingPipeline({ currentStep, isError = false, errorMessage 
                 <div
                   className={cn(
                     "flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all",
-                    isCompleted && "border-success bg-success/10",
-                    isActive && !isError && "border-primary bg-primary/10 ring-2 ring-primary/30 animate-pulse",
-                    !isActive && !isCompleted && "border-slate-700 bg-slate-800/50",
-                    isError && index >= currentIndex && "border-danger bg-danger/10"
+                    isCompleted && "border-[#16A34A] bg-[#F0FDF4]",
+                    isActive && !isErrorState && "border-[#2563EB] bg-[#EFF6FF] ring-4 ring-[#2563EB]/25",
+                    !isActive && !isCompleted && "border-[#D8E1EE] bg-[#F5F7FB]",
+                    isErrorState && index >= currentIndex && "border-[#DC2626] bg-[#FEF2F2]"
                   )}
                 >
-                  {isCompleted && <CheckCircle2 className="h-6 w-6 text-success" />}
-                  {isActive && !isError && <Loader2 className="h-6 w-6 animate-spin text-primary" />}
-                  {isError && index >= currentIndex && <AlertCircle className="h-6 w-6 text-danger" />}
-                  {!isActive && !isCompleted && !isError && <Clock className="h-6 w-6 text-muted" />}
+                  {isCompleted && <CheckCircle2 className="h-6 w-6 text-[#16A34A]" />}
+                  {isActive && !isErrorState && <Loader2 className="h-6 w-6 animate-spin text-[#2563EB]" />}
+                  {isErrorState && index >= currentIndex && <AlertCircle className="h-6 w-6 text-[#DC2626]" />}
+                  {!isActive && !isCompleted && !isErrorState && <Clock className="h-6 w-6 text-[#94A3B8]" />}
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 pt-1">
-                  <p className="font-semibold text-slate-100">{step.label}</p>
-                  <p className="text-sm text-soft">{step.description}</p>
+                <div className="flex-1 pt-2">
+                  <p className={cn(
+                    "font-bold text-sm",
+                    isActive ? "text-[#2563EB]" : isCompleted ? "text-[#0F172A]" : "text-[#64748B]"
+                  )}>
+                    {step.label}
+                  </p>
+                  <p className="text-xs text-[#64748B] mt-0.5">{step.description}</p>
                 </div>
               </div>
             );
@@ -67,8 +72,8 @@ export function ProcessingPipeline({ currentStep, isError = false, errorMessage 
 
       {/* Error message */}
       {errorMessage && (
-        <div className="rounded-lg border border-danger/20 bg-danger/10 p-4">
-          <p className="text-sm font-medium text-danger">{errorMessage}</p>
+        <div className="rounded-lg border border-[#DC2626]/20 bg-[#FEF2F2] p-4">
+          <p className="text-sm font-semibold text-[#DC2626]">{errorMessage}</p>
         </div>
       )}
     </div>

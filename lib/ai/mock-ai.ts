@@ -84,6 +84,38 @@ const scenarios: Record<string, { segments: TranscriptSegment[]; outcome: string
       { timestamp: "00:00:50", speaker: "Customer", text: "Can reviewers correct the AI category when it is wrong?" },
       { timestamp: "00:01:12", speaker: "Agent", text: "They can mark the report correct or submit a corrected category with feedback." }
     ]
+  },
+  Voicemail: {
+    reason: "No live human speech detected; only answering machine tones or short automated beep triggers recorded.",
+    outcome: "No live conversation detected",
+    segments: [
+      { timestamp: "00:00:01", speaker: "Agent", text: "Please leave a message after the beep." },
+      { timestamp: "00:00:08", speaker: "Customer", text: "[Beep tone / Voicemail recording]" }
+    ]
+  },
+  "Spam Call": {
+    reason: "Automated robocall tone or promotional telemarketing audio with no constructive customer intent.",
+    outcome: "No live conversation detected",
+    segments: [
+      { timestamp: "00:00:02", speaker: "Customer", text: "[Automated dialer tone / Static / Short beep]" }
+    ]
+  },
+  "Wrong Number": {
+    reason: "The caller reached the wrong business or dialer error, resulting in immediate disconnect.",
+    outcome: "No live conversation detected",
+    segments: [
+      { timestamp: "00:00:04", speaker: "Customer", text: "Hello, is this the pizza shop?" },
+      { timestamp: "00:00:08", speaker: "Agent", text: "No, this is CallAudit X. You have dialled a wrong number." },
+      { timestamp: "00:00:11", speaker: "Customer", text: "Oh, sorry. Wrong number. Bye." }
+    ]
+  },
+  "Successful Conversion": {
+    reason: "The prospect successfully completed a checkout flow or accepted direct pricing.",
+    outcome: "Call resulted in a booking, sale, or qualified win.",
+    segments: [
+      { timestamp: "00:00:05", speaker: "Agent", text: "Great, let's complete your subscription setup now." },
+      { timestamp: "00:00:19", speaker: "Customer", text: "Perfect, I will authorize the invoice right away." }
+    ]
   }
 };
 
@@ -94,10 +126,10 @@ const recommendations: Record<string, string> = {
   "Appointment Booking": "Send the calendar confirmation and a reminder before the appointment.",
   "Product Inquiry": "Send feature documentation and offer a guided walkthrough.",
   "Successful Conversion": "Start onboarding and notify customer success.",
-  Voicemail: "Return the call during the requested callback window.",
+  Voicemail: "No immediate action. Return the call if customer left callback details.",
   "Follow-Up Required": "Create a follow-up task with the promised date and context.",
   "Wrong Number": "No action required.",
-  "Spam Call": "No follow-up required; tag source if repeated."
+  "Spam Call": "No follow-up required; black-list dialer if repeated."
 };
 
 function stableHash(value: string) {
@@ -114,22 +146,58 @@ function transcriptFromSegments(segments: TranscriptSegment[]) {
 
 function pickCategory(categories: Category[], metadata: CallMetadata) {
   const text = `${metadata.title} ${metadata.fileName || ""} ${metadata.callType || ""} ${metadata.notes || ""}`.toLowerCase();
-  const preferred =
-    text.includes("complaint") || text.includes("billing") || text.includes("escalat")
-      ? "Complaint"
-      : text.includes("book") || text.includes("appointment")
-        ? "Appointment Booking"
-        : text.includes("product") || text.includes("feature")
-          ? "Product Inquiry"
-          : text.includes("sales") || text.includes("lead") || text.includes("pricing")
-            ? "Sales Lead"
-            : "Customer Support";
-  return categories.find((category) => category.name === preferred) || categories[0];
+  
+  if (text.includes("voicemail") || text.includes("beep") || text.includes("machine") || text.includes("ring")) {
+    return categories.find((c) => c.name === "Voicemail") || categories.find((c) => c.name === "Spam Call") || categories[0];
+  }
+  if (text.includes("spam") || text.includes("automated") || text.includes("dialer") || text.includes("robot") || text.includes("telemarket")) {
+    return categories.find((c) => c.name === "Spam Call") || categories[0];
+  }
+  if (text.includes("wrong") || text.includes("disconnect") || text.includes("hangup") || text.includes("wrong number")) {
+    return categories.find((c) => c.name === "Wrong Number") || categories[0];
+  }
+  if (text.includes("complaint") || text.includes("billing") || text.includes("escalat")) {
+    return categories.find((c) => c.name === "Complaint") || categories[0];
+  }
+  if (text.includes("book") || text.includes("appointment")) {
+    return categories.find((c) => c.name === "Appointment Booking") || categories[0];
+  }
+  if (text.includes("product") || text.includes("feature")) {
+    return categories.find((c) => c.name === "Product Inquiry") || categories[0];
+  }
+  if (text.includes("sales") || text.includes("lead") || text.includes("pricing")) {
+    return categories.find((c) => c.name === "Sales Lead") || categories[0];
+  }
+  if (text.includes("convert") || text.includes("deal") || text.includes("won") || text.includes("checkout")) {
+    return categories.find((c) => c.name === "Successful Conversion") || categories[0];
+  }
+  
+  return categories.find((c) => c.name === "Customer Support") || categories[0];
 }
 
 export function mockTranscript(metadata: CallMetadata) {
-  const scenarioName = metadata.callType === "Voicemail" ? "Customer Support" : undefined;
-  const scenario = scenarios[scenarioName || "Customer Support"];
+  const text = `${metadata.title} ${metadata.fileName || ""} ${metadata.callType || ""} ${metadata.notes || ""}`.toLowerCase();
+  
+  let scenarioName = "Customer Support";
+  if (text.includes("voicemail") || text.includes("beep") || text.includes("machine") || text.includes("ring")) {
+    scenarioName = "Voicemail";
+  } else if (text.includes("spam") || text.includes("automated") || text.includes("dialer") || text.includes("robot")) {
+    scenarioName = "Spam Call";
+  } else if (text.includes("wrong") || text.includes("wrong number")) {
+    scenarioName = "Wrong Number";
+  } else if (text.includes("complaint")) {
+    scenarioName = "Complaint";
+  } else if (text.includes("book")) {
+    scenarioName = "Appointment Booking";
+  } else if (text.includes("product") || text.includes("feature")) {
+    scenarioName = "Product Inquiry";
+  } else if (text.includes("sales") || text.includes("pricing")) {
+    scenarioName = "Sales Lead";
+  } else if (text.includes("convert") || text.includes("won")) {
+    scenarioName = "Successful Conversion";
+  }
+
+  const scenario = scenarios[scenarioName] || scenarios["Customer Support"];
   return {
     text: transcriptFromSegments(scenario.segments),
     segments: scenario.segments
@@ -140,29 +208,61 @@ export function mockAudit(categories: Category[], metadata: CallMetadata, transc
   const category = pickCategory(categories, metadata);
   const scenario = scenarios[category.name] || scenarios["Customer Support"];
   const hash = stableHash(`${metadata.title}${metadata.fileName}${metadata.agentName}${metadata.notes}`);
-  const sentiment: Sentiment = category.name === "Complaint" ? Sentiment.Negative : category.name === "Wrong Number" || category.name === "Spam Call" ? Sentiment.Neutral : hash % 3 === 0 ? Sentiment.Neutral : Sentiment.Positive;
-  const agentScore = clampScore(category.name === "Complaint" ? 62 + (hash % 15) : 78 + (hash % 18));
-  const leadQualityScore = clampScore(["Sales Lead", "Product Inquiry", "Successful Conversion"].includes(category.name) ? 74 + (hash % 20) : 35 + (hash % 28));
-  const callQualityScore = clampScore(70 + (hash % 23));
-  const confidenceScore = clampScore(78 + (hash % 18));
+  
+  const isAutomated = ["Voicemail", "Spam Call", "Wrong Number"].includes(category.name);
+  
+  const sentiment: Sentiment = 
+    category.name === "Complaint" 
+      ? Sentiment.Negative 
+      : isAutomated 
+        ? Sentiment.Neutral 
+        : hash % 3 === 0 
+          ? Sentiment.Neutral 
+          : Sentiment.Positive;
+
+  const agentScore = clampScore(
+    isAutomated 
+      ? 0 
+      : category.name === "Complaint" 
+        ? 62 + (hash % 15) 
+        : 78 + (hash % 18)
+  );
+
+  const leadQualityScore = clampScore(
+    isAutomated 
+      ? 0 
+      : ["Sales Lead", "Product Inquiry", "Successful Conversion"].includes(category.name) 
+        ? 74 + (hash % 20) 
+        : 35 + (hash % 28)
+  );
+
+  const callQualityScore = clampScore(isAutomated ? 0 : 70 + (hash % 23));
+  const confidenceScore = clampScore(isAutomated ? 95 + (hash % 5) : 78 + (hash % 18));
   const segments = transcriptSegments?.length ? transcriptSegments : scenario.segments;
+
+  let summaryText = "";
+  if (isAutomated) {
+    summaryText = `This call was automatically classified as an automated ${category.name.toLowerCase()} tone or voicemail beep. No constructive conversational speech or agent action detected.`;
+  } else {
+    summaryText = `${metadata.agentName || "The agent"} handled a ${category.name.toLowerCase()} interaction${metadata.campaignName ? ` for ${metadata.campaignName}` : ""}. The customer intent was identified and the next action is clear.`;
+  }
 
   return {
     transcript: transcriptText || transcriptFromSegments(segments),
     transcriptSegments: segments,
-    summary: `${metadata.agentName || "The agent"} handled a ${category.name.toLowerCase()} interaction${metadata.campaignName ? ` for ${metadata.campaignName}` : ""}. The customer intent was identified and the next action is clear.`,
+    summary: summaryText,
     categoryId: category.id,
     categoryReason: scenario.reason,
     sentiment,
-    customerIntent: category.name === "Complaint" ? "Resolve a frustrating account issue quickly." : `Progress a ${category.name.toLowerCase()} conversation with clear next steps.`,
+    customerIntent: isAutomated ? "None - automated signal detected." : category.name === "Complaint" ? "Resolve a frustrating account issue quickly." : `Progress a ${category.name.toLowerCase()} conversation with clear next steps.`,
     agentScore,
     leadQualityScore,
     callQualityScore,
     confidenceScore,
-    keywords: Array.from(new Set([category.name.toLowerCase(), metadata.callType || "inbound", "qa", "follow-up", "customer intent"])).slice(0, 5),
-    mistakes: agentScore < 75 ? ["Agent should confirm the exact timeline before ending the call.", "Customer concern could have been restated more clearly."] : ["No critical mistakes found."],
+    keywords: Array.from(new Set([category.name.toLowerCase(), metadata.callType || "inbound", "automated-detection", "qa"])).slice(0, 5),
+    mistakes: isAutomated ? ["None - call did not reach an agent."] : agentScore < 75 ? ["Agent should confirm the exact timeline before ending the call.", "Customer concern could have been restated more clearly."] : ["No critical mistakes found."],
     recommendedAction: recommendations[category.name] || "Review the call and add a manager note.",
-    customerMood: sentiment === "Negative" ? "Frustrated" : sentiment === "Positive" ? "Engaged" : "Neutral",
+    customerMood: isAutomated ? "Neutral" : sentiment === "Negative" ? "Frustrated" : sentiment === "Positive" ? "Engaged" : "Neutral",
     callOutcome: scenario.outcome
   } satisfies AuditDraft;
 }

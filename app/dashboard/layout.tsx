@@ -1,15 +1,18 @@
 import { Role } from "@prisma/client";
 import { AppShell } from "@/components/AppShell";
 import { getCurrentUser, getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
+  if (!session) {
+    redirect("/login");
+  }
+
   const user = await getCurrentUser();
-  const shellUser = user || {
-    name: "Demo Customer",
-    email: "customer@callauditx.com",
-    role: Role.CUSTOMER,
-    plan: { name: "Pro" }
-  };
-  return <AppShell user={shellUser}>{children}</AppShell>;
+  if (!user) {
+    redirect("/login");
+  }
+
+  return <AppShell user={user}>{children}</AppShell>;
 }

@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { VerificationBox } from "@/components/VerificationBox";
 import { Badge, Card, LinkButton, PageHeader, ScoreCard } from "@/components/ui";
 import { getSession } from "@/lib/auth";
-import { getOrCreateDemoCustomer } from "@/lib/demo-user";
 import { prisma } from "@/lib/prisma";
+import { ShieldAlert, Download, ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -29,9 +29,11 @@ function transcriptSegments(report: { transcript: string; transcriptSegments: un
 
 async function loadCall(id: string) {
   const session = await getSession();
-  const demoUser = session ? null : await getOrCreateDemoCustomer();
+  if (!session) {
+    redirect("/login");
+  }
   return prisma.call.findFirst({
-    where: { id, userId: session?.id || demoUser!.id },
+    where: { id, userId: session.id },
     include: { report: { include: { category: true } }, verification: { include: { correctedCategory: true } } }
   });
 }
@@ -39,26 +41,60 @@ async function loadCall(id: string) {
 export default async function CallDetailPage({ params }: { params: { id: string } }) {
   const call = await loadCall(params.id);
   if (!call) notFound();
+  
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const report = call.report;
   const segments = report ? transcriptSegments(report) : [];
+
+  const isAutomated = report && ["Voicemail", "Spam Call", "Wrong Number"].includes(report.category.name);
 
   return (
     <>
       <PageHeader
         title={call.title}
-        subtitle={`${call.agentName || "Unknown agent"} • ${call.campaignName || "No campaign"} • ${new Date(call.createdAt).toLocaleString()}`}
-        action={<LinkButton href="/dashboard/calls" className="border border-[#D8E1EE] bg-white text-[#64748B] hover:bg-[#F5F7FB]">Back to calls</LinkButton>}
+        subtitle={`${call.agentName || "No agent assigned"} • ${call.campaignName || "No campaign"} • ${new Date(call.createdAt).toLocaleString()}`}
+        action={
+          <div className="flex flex-wrap gap-2.5">
+            <LinkButton 
+              href="/dashboard/calls" 
+              className="border border-[#D8E1EE] bg-white text-[#64748B] hover:bg-[#F5F7FB]"
+            >
+              <ArrowLeft className="mr-1.5 h-4 w-4 shrink-0" />
+              Back to library
+            </LinkButton>
+            <a 
+              href={`/api/calls/${call.id}/report`}
+              download
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-[#2563EB] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#1D4ED8] shadow-[0_2px_8px_rgba(37,99,235,0.15)]"
+            >
+              <Download className="h-4 w-4 shrink-0" />
+              Download Report
+            </a>
+          </div>
+        }
       />
+
+      {/* Automated Call Alert Banner */}
+      {isAutomated && (
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-[#D97706]/20 bg-[#FFFBEB] p-5 shadow-sm">
+          <ShieldAlert className="h-6 w-6 text-[#D97706] shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-extrabold text-[#92400E]">No live conversation detected</h3>
+            <p className="mt-1 text-sm text-[#B45309] font-semibold leading-relaxed">
+              Our B2B AI pipeline analyzed this audio and classified it as an automated voicemail beep, machine response, dialer tone, or disconnectedwrong number event. Performance scoring has been bypassed for this record.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-6 xl:grid-cols-[1fr_400px]">
         <div className="space-y-6">
           {/* Audio Review */}
-          <Card>
+          <Card className="bg-white border border-[#D8E1EE] p-6">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="font-bold text-[#0F172A]">Audio review</h2>
+              <h2 className="font-extrabold text-[#0F172A]">Audio review</h2>
               <div className="flex flex-wrap gap-2">
-                <Badge>{call.fileName}</Badge>
+                <Badge tone="default">{call.fileName}</Badge>
                 <Badge tone={call.status === "failed" ? "danger" : call.status === "completed" || call.status === "analyzed" ? "success" : "warn"}>{call.status}</Badge>
               </div>
             </div>
@@ -72,39 +108,39 @@ export default async function CallDetailPage({ params }: { params: { id: string 
 
           {/* AI Report Card */}
           {report ? (
-            <Card>
-              <div className="flex flex-wrap gap-2">
-                <Badge>{report.category.name}</Badge>
+            <Card className="bg-white border border-[#D8E1EE] p-6">
+              <div className="flex flex-wrap gap-2 mb-4">
+                <Badge tone="info">{report.category.name}</Badge>
                 <Badge tone={report.sentiment === "Negative" ? "danger" : report.sentiment === "Positive" ? "success" : "warn"}>{report.sentiment}</Badge>
                 <Badge tone={call.verification?.status === "correct" ? "success" : call.verification?.status === "incorrect" ? "danger" : "warn"}>{call.verification?.status || "pending"}</Badge>
               </div>
-              <h2 className="mt-5 text-xl font-bold text-[#0F172A]">AI summary</h2>
-              <p className="mt-3 leading-7 text-[#334155]">{report.summary}</p>
+              <h2 className="text-xl font-extrabold text-[#0F172A] mt-5">AI summary</h2>
+              <p className="mt-2.5 leading-relaxed text-[#334155] font-medium text-sm">{report.summary}</p>
               
-              <div className="mt-5 rounded-xl border border-[#2563EB]/20 bg-[#EFF6FF] p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2563EB]">Category reason</p>
-                <p className="mt-2 text-sm leading-6 text-[#334155]">
+              <div className="mt-5 rounded-xl border border-[#2563EB]/15 bg-[#EFF6FF] p-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#2563EB]">Category reason</p>
+                <p className="mt-2 text-sm leading-relaxed text-[#334155] font-semibold">
                   {report.categoryReason || "The AI selected the closest matching category based on transcript content."}
                 </p>
               </div>
 
-              <h3 className="mt-6 font-bold text-[#0F172A]">Timestamped transcript</h3>
-              <div className="mt-3 space-y-3 rounded-2xl border border-[#D8E1EE] bg-[#F5F7FB] p-4 text-sm text-[#334155]">
+              <h3 className="mt-6 font-extrabold text-[#0F172A] text-base">Timestamped transcript</h3>
+              <div className="mt-3.5 space-y-3 rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4 text-sm text-[#334155]">
                 {segments.map((segment: TranscriptSegment, index: number) => (
-                  <div key={`${segment.timestamp}-${index}`} className="grid gap-3 border-b border-[#EEF3F9] pb-3 last:border-0 last:pb-0 md:grid-cols-[92px_110px_1fr]">
-                    <span className="font-mono text-xs font-semibold text-[#94A3B8]">{segment.timestamp || "--:--"}</span>
-                    <span className="w-fit rounded-full border border-[#D8E1EE] bg-white px-2 py-0.5 text-xs font-bold text-[#0F172A]">
+                  <div key={`${segment.timestamp}-${index}`} className="grid gap-3 border-b border-[#EEF3F9] pb-3 last:border-0 last:pb-0 md:grid-cols-[92px_110px_1fr] items-start">
+                    <span className="font-mono text-xs font-bold text-[#64748B] mt-0.5">{segment.timestamp || "--:--"}</span>
+                    <span className="w-fit text-center rounded-full border border-[#D8E1EE] bg-white px-2.5 py-0.5 text-xs font-bold text-[#0F172A]">
                       {segment.speaker || "Speaker"}
                     </span>
-                    <p className="leading-6">{segment.text}</p>
+                    <p className="leading-relaxed font-medium text-[#334155]">{segment.text}</p>
                   </div>
                 ))}
               </div>
             </Card>
           ) : (
-            <Card>
-              <h2 className="font-bold text-[#0F172A]">AI report pending</h2>
-              <p className="mt-2 text-sm leading-6 text-[#64748B]">
+            <Card className="bg-white border border-[#D8E1EE] p-6">
+              <h2 className="font-extrabold text-[#0F172A]">AI report pending</h2>
+              <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
                 This call has been uploaded but does not have a report yet. Re-run the upload flow or call the analysis endpoint for this call.
               </p>
             </Card>
@@ -112,38 +148,38 @@ export default async function CallDetailPage({ params }: { params: { id: string 
 
           {/* Audit Findings */}
           {report ? (
-            <Card>
-              <h2 className="font-bold text-[#0F172A]">Audit findings</h2>
+            <Card className="bg-white border border-[#D8E1EE] p-6">
+              <h2 className="font-extrabold text-[#0F172A]">Audit findings</h2>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#64748B]">Customer intent</p>
-                  <p className="mt-2 font-medium text-[#0F172A]">{report.customerIntent}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Customer intent</p>
+                  <p className="mt-2 font-semibold text-[#0F172A] text-sm">{report.customerIntent}</p>
                 </div>
                 <div className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#64748B]">Customer mood</p>
-                  <p className="mt-2 font-medium text-[#0F172A]">{report.customerMood}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Customer mood</p>
+                  <p className="mt-2 font-semibold text-[#0F172A] text-sm">{report.customerMood}</p>
                 </div>
                 <div className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#64748B]">Outcome</p>
-                  <p className="mt-2 font-medium text-[#0F172A]">{report.callOutcome}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Outcome</p>
+                  <p className="mt-2 font-semibold text-[#0F172A] text-sm">{report.callOutcome}</p>
                 </div>
                 <div className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#64748B]">Next action</p>
-                  <p className="mt-2 font-medium text-[#0F172A]">{report.recommendedAction}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Next action</p>
+                  <p className="mt-2 font-semibold text-[#0F172A] text-sm">{report.recommendedAction}</p>
                 </div>
               </div>
 
-              <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-[#64748B]">Keywords</p>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <p className="mt-6 text-xs font-bold uppercase tracking-wider text-[#64748B]">Keywords</p>
+              <div className="mt-2.5 flex flex-wrap gap-2">
                 {report.keywords.map((keyword) => (
-                  <Badge key={keyword}>{keyword}</Badge>
+                  <Badge key={keyword} tone="default">{keyword}</Badge>
                 ))}
               </div>
 
-              <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-[#64748B]">Agent Mistakes</p>
-              <ul className="mt-2 space-y-2">
+              <p className="mt-6 text-xs font-bold uppercase tracking-wider text-[#64748B]">Agent Mistakes & Compliance Violations</p>
+              <ul className="mt-2.5 space-y-2">
                 {report.mistakes.map((mistake) => (
-                  <li key={mistake} className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-3 text-sm text-[#334155] leading-6">
+                  <li key={mistake} className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-3 text-sm text-[#334155] leading-relaxed font-medium">
                     {mistake}
                   </li>
                 ))}
