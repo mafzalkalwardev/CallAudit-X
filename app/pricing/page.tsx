@@ -175,7 +175,7 @@ export default function PricingPage() {
         {/* First call free CTA */}
         <div className="mt-8 text-center">
           <p className="text-sm text-[#64748B]">
-            🎉 <strong className="text-[#0F172A]">First call free</strong> — no credit card required. Cancel anytime.
+            <strong className="text-[#0F172A]">First call free</strong> - no credit card required. Cancel anytime.
           </p>
         </div>
 

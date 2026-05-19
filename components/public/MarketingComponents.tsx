@@ -253,7 +253,7 @@ export function HeroDashboardPreview() {
                 <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#16A34A]" />
               </div>
-              <p className="text-sm font-semibold text-[#0F172A]">CallAudit X command center</p>
+              <p className="text-sm font-semibold text-[#0F172A]">CallAudit X audit workspace</p>
             </div>
             <StatusBadge tone="success">Live processing</StatusBadge>
           </div>

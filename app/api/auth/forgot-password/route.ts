@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 
+const successMessage = "If an account exists, a reset link has been generated.";
+
+function hashResetToken(token: string) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();
@@ -12,34 +18,31 @@ export async function POST(request: Request) {
     const cleanEmail = email.toLowerCase().trim();
     const user = await prisma.user.findUnique({ where: { email: cleanEmail } });
 
-    // Track request
     await prisma.securityLog.create({
       data: {
         type: "PASSWORD_RESET_REQUESTED",
         email: cleanEmail,
         userId: user?.id || null,
-        status: user ? "success" : "failed",
-        message: user 
-          ? `Password reset requested for registered user.` 
-          : `Password reset requested for unregistered email.`
+        status: "success",
+        message: "Password reset requested."
       }
     });
 
     if (!user) {
-      // NEVER reveal email existence for security
       return NextResponse.json({
         ok: true,
-        message: "If an account exists, a reset link has been generated."
+        message: successMessage
       });
     }
 
     const token = crypto.randomBytes(32).toString("hex");
-    const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry per instructions
+    const tokenHash = hashResetToken(token);
+    const expiry = new Date(Date.now() + 15 * 60 * 1000);
 
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        resetToken: token,
+        resetToken: tokenHash,
         resetTokenExpiry: expiry
       }
     });
@@ -97,7 +100,6 @@ export async function POST(request: Request) {
         });
       }
     } else {
-      // Email disabled log
       await prisma.securityLog.create({
         data: {
           type: "EMAIL_DISABLED",
@@ -109,12 +111,11 @@ export async function POST(request: Request) {
       });
     }
 
-    // In dev mode (or if email failed/disabled), expose resetUrl to allow easy testing
-    const showResetLink = !emailSent;
+    const showResetLink = process.env.NODE_ENV !== "production" && !emailSent;
 
     return NextResponse.json({
       ok: true,
-      message: "If an account exists, a reset link has been generated.",
+      message: successMessage,
       resetUrl: showResetLink ? resetUrl : undefined
     });
   } catch (error: any) {

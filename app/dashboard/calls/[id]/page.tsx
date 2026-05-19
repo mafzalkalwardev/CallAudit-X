@@ -1,10 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import { AudioPlayer } from "@/components/AudioPlayer";
+import { TranscriptViewer } from "@/components/TranscriptViewer";
 import { VerificationBox } from "@/components/VerificationBox";
 import { Badge, Card, LinkButton, PageHeader, ScoreCard } from "@/components/ui";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { isNoLiveConversation } from "@/lib/categories";
+import { isNoLiveConversation, noLiveConversationMessage, noLiveConversationRecommendation } from "@/lib/categories";
 import { ShieldAlert, Download, ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -53,7 +54,7 @@ export default async function CallDetailPage({ params }: { params: { id: string 
     <>
       <PageHeader
         title={call.title}
-        subtitle={`${call.agentName || "No agent assigned"} • ${call.campaignName || "No campaign"} • ${new Date(call.createdAt).toLocaleString()}`}
+        subtitle={`${call.agentName || "No agent assigned"} | ${call.campaignName || "No campaign"} | ${new Date(call.createdAt).toLocaleString()}`}
         action={
           <div className="flex flex-wrap gap-2.5">
             <LinkButton 
@@ -80,9 +81,9 @@ export default async function CallDetailPage({ params }: { params: { id: string 
         <div className="mb-6 flex items-start gap-3 rounded-2xl border border-[#D97706]/20 bg-[#FFFBEB] p-5 shadow-sm">
           <ShieldAlert className="h-6 w-6 text-[#D97706] shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-extrabold text-[#92400E]">No live conversation detected</h3>
+            <h3 className="font-extrabold text-[#92400E]">{noLiveConversationMessage}</h3>
             <p className="mt-1 text-sm text-[#B45309] font-semibold leading-relaxed">
-              Our B2B AI pipeline analyzed this audio and classified it as an automated voicemail beep, machine response, dialer tone, or disconnected or wrong number event. Performance scoring has been bypassed for this record.
+              Our B2B AI pipeline classified this audio as voicemail, no answer, mailbox full, beep tone, spam, or wrong number. Performance scoring has been bypassed for this record. {noLiveConversationRecommendation}
             </p>
           </div>
         </div>
@@ -126,16 +127,8 @@ export default async function CallDetailPage({ params }: { params: { id: string 
               </div>
 
               <h3 className="mt-6 font-extrabold text-[#0F172A] text-base">Timestamped transcript</h3>
-              <div className="mt-3.5 space-y-3 rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4 text-sm text-[#334155]">
-                {segments.map((segment: TranscriptSegment, index: number) => (
-                  <div key={`${segment.timestamp}-${index}`} className="grid gap-3 border-b border-[#EEF3F9] pb-3 last:border-0 last:pb-0 md:grid-cols-[92px_110px_1fr] items-start">
-                    <span className="font-mono text-xs font-bold text-[#64748B] mt-0.5">{segment.timestamp || "--:--"}</span>
-                    <span className="w-fit text-center rounded-full border border-[#D8E1EE] bg-white px-2.5 py-0.5 text-xs font-bold text-[#0F172A]">
-                      {segment.speaker || "Speaker"}
-                    </span>
-                    <p className="leading-relaxed font-medium text-[#334155]">{segment.text}</p>
-                  </div>
-                ))}
+              <div className="mt-3.5">
+                <TranscriptViewer lines={(segments.length ? segments : report.transcript) as any} keywords={report.keywords} />
               </div>
             </Card>
           ) : (

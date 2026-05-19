@@ -74,7 +74,7 @@ export default async function AdminCallsPage() {
                     {call.report ? (isNoLiveConversation(call.report.category.name) ? "N/A" : call.report.agentScore) : "—"}
                   </td>
                   <td className="px-5 py-4">
-                    <Badge tone={call.status === "failed" ? "danger" : call.status === "analyzed" ? "success" : call.status === "uploaded" ? "warn" : "default"}>
+                    <Badge tone={call.status === "failed" ? "danger" : call.status === "analyzed" || call.status === "completed" ? "success" : call.status === "uploaded" || call.status === "queued" ? "warn" : "default"}>
                       {call.status}
                     </Badge>
                   </td>

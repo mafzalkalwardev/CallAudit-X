@@ -8,6 +8,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session) {
     redirect("/login");
   }
+  if (session.role === Role.ADMIN) {
+    redirect("/admin/dashboard");
+  }
 
   const user = await getCurrentUser();
   if (!user) {

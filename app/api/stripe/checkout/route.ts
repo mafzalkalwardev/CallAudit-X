@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   if (!process.env.STRIPE_SECRET_KEY || !plan.stripePriceId?.startsWith("price_")) {
-    return NextResponse.json({ error: "Stripe test checkout is not configured. Add STRIPE_SECRET_KEY and real test Price IDs for plans." }, { status: 503 });
+    return NextResponse.json({ error: "Stripe checkout is not configured yet." }, { status: 503 });
   }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-02-24.acacia" });

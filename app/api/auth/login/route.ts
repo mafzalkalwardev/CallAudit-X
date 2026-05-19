@@ -10,8 +10,11 @@ export async function POST(request: Request) {
     if (!user || !(await verifyPassword(input.password, user.passwordHash))) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
+    if (user.subscriptionStatus === "inactive") {
+      return NextResponse.json({ error: "This account is inactive. Contact an administrator to restore access." }, { status: 403 });
+    }
     await createSession(user);
-    return NextResponse.json({ ok: true, role: user.role });
+    return NextResponse.json({ ok: true, role: user.role, redirectTo: user.role === "ADMIN" ? "/admin/dashboard" : "/dashboard" });
   } catch {
     return NextResponse.json({ error: "Invalid login data" }, { status: 400 });
   }

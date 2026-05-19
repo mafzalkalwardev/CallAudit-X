@@ -107,7 +107,7 @@ export async function POST(request: Request) {
             await prisma.payment.create({
               data: {
                 userId: user.id,
-                amount: Math.round(amount / 100), // convert cents to dollars
+                amount,
                 status: "paid",
                 planName: "Invoice renewal payment",
                 stripeSessionId: invoice.id || null

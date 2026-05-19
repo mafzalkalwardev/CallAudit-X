@@ -1,21 +1,23 @@
 # CallAudit X
 
-AI-powered call auditing and analytics SaaS built with Next.js, Prisma, PostgreSQL, Stripe test checkout, and a mock-first AI service.
+CallAudit X is a Next.js SaaS MVP for AI-assisted call auditing. It lets customers upload recorded calls, generate transcripts and structured QA reports, verify or correct AI results, and review database-backed analytics. Admins can manage users, categories, calls, security logs, and payment records.
 
 ## Features
 
-- Customer and admin authentication with hashed passwords and JWT cookies
-- Role-based protected dashboards
-- Audio upload to `public/uploads` with file validation
-- Mock AI reports that generate transcript, summary, category, sentiment, scores, keywords, mistakes, and recommended action
-- Call detail page with browser audio player, report review, correction, and feedback
-- Database-backed analytics with Recharts
-- Pricing plans and Stripe test checkout structure
-- Admin dashboard for customers, calls, payments, corrected reviews, and AI accuracy
+- Real customer/admin login with bcrypt password hashes and HTTP-only JWT cookies
+- Role-protected customer and admin dashboards
+- Audio upload to local storage with explicit analyze action
+- OpenAI transcription/audit support only when `OPENAI_API_KEY` is configured
+- Mock AI fallback when OpenAI is missing or fails
+- Transcript viewer that handles string, array, object, and null transcript data
+- No-live-conversation handling for voicemail, no answer, mailbox full, beep tone, spam, and wrong number calls
+- Password reset flow with hashed reset tokens, 15-minute expiry, FormSubmit email support, and security logs
+- Admin user CRUD, category management, payments view, and security log table
+- Billing page with plan usage, invoices, per-minute categories, and disabled checkout when Stripe is not configured
 
 ## Tech Stack
 
-Next.js App Router, React, TypeScript, Tailwind CSS, Prisma, PostgreSQL, Recharts, Lucide React, Zod, bcryptjs, jose JWT, Stripe.
+Next.js 14 App Router, React, TypeScript, Tailwind CSS, Prisma, PostgreSQL, bcryptjs, jose JWT, Recharts, Stripe, OpenAI, and FormSubmit for password reset email delivery.
 
 ## Environment Variables
 
@@ -25,13 +27,20 @@ Create `.env`:
 DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/callauditx"
 NEXTAUTH_SECRET="replace-with-a-long-random-secret"
 NEXTAUTH_URL="http://localhost:3000"
+
+OPENAI_API_KEY=""
+OPENAI_TRANSCRIPTION_MODEL="gpt-4o-transcribe"
+OPENAI_AUDIT_MODEL="gpt-4.1-mini"
+
 STRIPE_SECRET_KEY=""
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
 STRIPE_WEBHOOK_SECRET=""
-OPENAI_API_KEY=""
+
+FORM_SUBMIT_ENABLED=false
+FORM_SUBMIT_FROM_EMAIL=callaudtix@gmail.com
 ```
 
-`OPENAI_API_KEY` is optional. Without it, the app uses mock AI and remains fully usable.
+`OPENAI_API_KEY` is optional. Without it, upload and analyze flows use mock AI and remain demo-ready. Do not expose server secrets in client code.
 
 ## Setup
 
@@ -51,53 +60,51 @@ Admin: `admin@callauditx.com` / `Admin123!`
 
 Customer: `customer@callauditx.com` / `Customer123!`
 
-## Stripe Test Setup
+## Presentation Demo Flow
 
-Add a test `STRIPE_SECRET_KEY` and replace the seed plan `stripePriceId` values in `lib/categories.ts` with real Stripe test Price IDs. Checkout falls back to a local success redirect if Stripe is not configured, so development is not blocked.
+1. Open `/` and show the polished SaaS homepage, pricing CTA, and live demo link.
+2. Open `/transcription-demo`, switch between Sales Call, Support Call, and Voicemail / No Answer, then replay the animated pipeline.
+3. Log in as the demo customer and upload `public/sample-call.wav` from `/dashboard/upload`.
+4. Open the generated review, inspect audio, transcript, AI report, N/A no-live handling, and verification controls.
+5. Mark a report as approved, then reject/correct another report to show the human feedback loop.
+6. Open `/dashboard/analytics` to show real DB-backed category, sentiment, score, and verification charts.
+7. Log in as admin and show `/admin/customers`, `/admin/payments`, `/admin/security-logs`, `/admin/categories`, and `/admin/calls`.
 
-## OpenAI Optional Setup
+## Password Reset Email Flow
 
-Add `OPENAI_API_KEY` when you are ready to connect real transcription and structured audit generation. The service layer is in `lib/ai.service.ts`; failures fall back to mock AI.
+`/forgot-password` always returns the same safe message: “If an account exists, a reset link has been generated.”
 
----
+When an account exists, the API creates a random token, stores only its SHA-256 hash, sets a 15-minute expiry, and logs the request. If `FORM_SUBMIT_ENABLED=true`, the server posts to `https://formsubmit.co/ajax/<FORM_SUBMIT_FROM_EMAIL>` with the reset message. In development, if email is disabled or fails, the reset URL is shown for testing. In production, reset URLs are never returned in the API response.
 
-## 🎭 Presentation Demo Flow
+`/reset-password?token=...` validates the token hash and expiry, hashes the new password, clears the token, logs completion, and redirects the user back to login.
 
-Follow these step-by-step guidelines for a high-impact, flawless live product presentation:
+## Billing Explanation
 
-### Step 1: The B2B SaaS Front Gate
-1. Open `http://localhost:3000` to show the modern, high-converting Landing Page.
-2. Navigate to **Services**, **How It Works**, and **Reviews** to show custom corporate content layouts.
-3. Open the **Pricing** page. Toggle the **Yearly Plan** billing switch to showcase the **20% discount** telemetry.
+Pricing buttons send authenticated users to `/dashboard/billing?plan=<plan>` and unauthenticated users to `/register?plan=<plan>`. Billing displays the current plan, selected plan, usage, invoices, payment status, and per-minute audit categories:
 
-### Step 2: Interactive Demo Playground (Zero Setup)
-1. Click **Live Demo** in the top navigation bar.
-2. Select the **Sales Call** or **Support Call** scenario.
-3. Show the dynamic **Processing Pipeline** state transitions (*Uploaded → Transcribing → Analyzing → Completed*).
-4. Demonstrate how the AI automatically isolates agent/customer audio turns and provides live sentiment gauges.
+- Sales QA: `$0.12/min`
+- Support QA: `$0.08/min`
+- Lead Qualification: `$0.10/min`
+- Compliance Review: `$0.15/min`
+- Appointment Review: `$0.07/min`
+- Spam Detection: `$0.03/min`
 
-### Step 3: Database Registration & Auth Boundary
-1. Navigate to the **Login** portal.
-2. Show the separate B2B shortcut buttons: **"Login as Customer"** and **"Login as Admin"** to showcase role-based redirects.
-3. Test protection boundaries: copy a dashboard link, sign out, and show that pasting the link redirects safely back to `/login`.
+If Stripe keys or real Price IDs are missing, checkout buttons stay disabled and show “Stripe checkout is not configured yet.”
 
-### Step 4: Ingestion & AI Processing
-1. Log in as a Customer, and go to **Upload Calls**.
-2. Drag and drop or browse to select an audio file (e.g. `public/sample-call.wav`). Enter campaign metadata.
-3. Click **Upload & Process**. Show the live progression queue.
-4. Click **Open Review** to enter the **Call Review Cockpit**.
+## AI Review Flow
 
-### Step 5: The Call Review Cockpit (The Flagship Feature!)
-1. Play the uploaded recording inside the native HTML5 player.
-2. Highlight how the **Transcript Viewer** tracks and formats speaker nodes.
-3. Review the AI generated insights: Agent Scorecard, Customer Sentiment, Recommended Next Actions, and Mistake flags.
-4. Test the **Verification loop**: select **Incorrect**, choose a corrected Category, and input feedback. Show that the DB updates instantaneously.
+OpenAI is never called during page render. It is only called from the explicit upload/analyze path:
 
-### Step 6: Workspace QA Analytics & Admin Console
-1. Go to **Analytics** to view live aggregated graphs (Category distribution, daily ingestion, and sentiment spreads).
-2. Log out, and sign in as the **Admin** (`admin@callauditx.com`).
-3. Explore the **Admin Console** to show platform operations:
-   * **Categories Manager**: Edit AI categories and customize dynamic system auditing rules.
-   * **Auditable Queue & Corrections**: Track global reviewer corrections to assess AI model accuracy.
-   * **Customers List**: Review B2B client subscription tiers.
+1. Customer uploads audio to `/api/calls/upload`.
+2. Customer triggers analysis through `/api/ai/analyze/[callId]`.
+3. `lib/ai/analyze-call.ts` transcribes and audits with OpenAI only when `OPENAI_API_KEY` exists.
+4. If OpenAI is missing or fails, mock transcript/report data is generated.
+5. Completed reports are cached in the database and reused by pages.
+6. Reviewers approve AI output or submit corrected category and feedback.
 
+## Useful Checks
+
+```bash
+npx prisma validate
+npx tsc --noEmit --pretty false --incremental false
+```

@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
+import crypto from "crypto";
+
+function hashResetToken(token: string) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
 
 export async function POST(request: Request) {
   try {
@@ -13,9 +18,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Password must be at least 6 characters long" }, { status: 400 });
     }
 
-    // Find user by token first to distinguish between invalid and expired tokens
     const user = await prisma.user.findFirst({
-      where: { resetToken: token }
+      where: { resetToken: hashResetToken(token) }
     });
 
     if (!user) {
@@ -24,7 +28,7 @@ export async function POST(request: Request) {
           type: "PASSWORD_RESET_INVALID_TOKEN",
           email: "unknown",
           status: "failed",
-          message: `Attempted password reset with invalid token: ${token}`
+          message: "Attempted password reset with an invalid token."
         }
       });
       return NextResponse.json({ error: "Invalid password reset token" }, { status: 400 });

@@ -14,10 +14,10 @@ interface AIReportPanelProps {
   recommendedAction: string;
   mistakes?: string[];
   scores: {
-    agentScore: number;
-    leadQualityScore: number;
-    callQualityScore: number;
-    confidenceScore: number;
+    agentScore: number | string;
+    leadQualityScore: number | string;
+    callQualityScore: number | string;
+    confidenceScore: number | string;
   };
 }
 

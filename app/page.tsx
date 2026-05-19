@@ -5,7 +5,6 @@ import {
   AITranscriptPreview,
   FeatureCard,
   GlassCard,
-  HeroDashboardPreview,
   PricingCard,
   ProcessingPipeline,
   ReviewCard,
@@ -59,9 +58,28 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative flex items-center justify-center lg:mt-0 mt-8">
-            <div className="w-full">
-              <HeroDashboardPreview />
+          <div className="relative lg:mt-0 mt-8">
+            <div className="overflow-hidden rounded-2xl border border-[#D8E1EE] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=85"
+                alt="Professional quality assurance team reviewing call analytics"
+                className="h-[420px] w-full object-cover"
+              />
+              <div className="grid gap-3 border-t border-[#D8E1EE] bg-white p-4 sm:grid-cols-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Transcript</p>
+                  <p className="mt-1 text-lg font-bold text-[#0F172A]">Ready</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#64748B]">AI report</p>
+                  <p className="mt-1 text-lg font-bold text-[#0F172A]">Scored</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Review</p>
+                  <p className="mt-1 text-lg font-bold text-[#0F172A]">Verified</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -161,12 +179,12 @@ export default function HomePage() {
         <section className="bg-[#EEF3F9] py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <SectionHeading
-              eyebrow="Dashboard Preview"
-              title="One intelligent command center for call QA"
+              eyebrow="Review Workspace"
+              title="Transcript-backed QA without a messy dashboard"
               subtitle="Track transcript status, audit findings, scores, complaints, confidence, and verification from one focused workspace."
             />
             <div className="mt-12">
-              <HeroDashboardPreview />
+              <AITranscriptPreview />
             </div>
           </div>
         </section>

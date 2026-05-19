@@ -115,7 +115,7 @@ export default async function CallsPage({ searchParams }: { searchParams: Record
                   <td className="p-4">
                     <p className="font-semibold text-[#0F172A]">{call.title || call.fileName}</p>
                     <p className="mt-1 text-xs text-[#64748B]">
-                      {call.fileName} • {call.agentName || "Unknown agent"} • {call.campaignName || "No campaign"}
+                      {call.fileName} | {call.agentName || "Unknown agent"} | {call.campaignName || "No campaign"}
                     </p>
                   </td>
                   <td className="p-4 text-[#64748B]">{call.report?.category.name || "Pending"}</td>

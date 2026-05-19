@@ -6,6 +6,19 @@ import { prisma } from "@/lib/prisma";
 
 const cookieName = "callaudit_token";
 
+export const safeUserSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  planId: true,
+  stripeCustomerId: true,
+  subscriptionStatus: true,
+  createdAt: true,
+  updatedAt: true,
+  plan: true
+} as const;
+
 function secret() {
   return new TextEncoder().encode(process.env.NEXTAUTH_SECRET || "dev-secret-change-me");
 }
@@ -64,5 +77,5 @@ export async function requireUser(role?: Role) {
 export async function getCurrentUser() {
   const session = await getSession();
   if (!session) return null;
-  return prisma.user.findUnique({ where: { id: session.id }, include: { plan: true } });
+  return prisma.user.findUnique({ where: { id: session.id }, select: safeUserSelect });
 }

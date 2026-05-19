@@ -25,6 +25,11 @@ export function isNoLiveConversation(categoryName: string): boolean {
   ].includes(categoryName);
 }
 
+export const noLiveConversationMessage = "No live conversation detected";
+
+export const noLiveConversationRecommendation =
+  "Retry the customer contact attempt or upload a different recording if this call should contain a live conversation.";
+
 export const plans = [
   { name: "Starter", price: 2900, monthlyCallLimit: 50, features: ["50 calls/month", "Basic AI report", "Audio playback", "Verification workflow"], stripePriceId: "price_starter_test" },
   { name: "Pro", price: 9900, monthlyCallLimit: 500, features: ["500 calls/month", "Advanced analytics", "Corrections tracking", "Priority processing"], stripePriceId: "price_pro_test" },

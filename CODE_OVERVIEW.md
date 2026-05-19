@@ -1,120 +1,93 @@
-# CallAudit X – Technical & Architectural Overview
+# CallAudit X Code Overview
 
-Welcome to the comprehensive technical documentation for **CallAudit X**, an enterprise-grade AI-Powered Call Auditing SaaS Platform designed for customer support, sales QA, and operational compliance.
+## Project Purpose
 
----
+CallAudit X is a portfolio-ready SaaS MVP for call QA teams. It connects recorded audio, transcript evidence, AI-generated audit reports, human verification, billing visibility, and admin operations in one Next.js application.
 
-## 🏗️ 1. Project Purpose & Tech Stack
+## Tech Stack
 
-CallAudit X resolves key B2B SaaS pain points by offering automated, high-fidelity AI-driven call reviews, replacing manual QA audit pipelines.
+- Next.js 14 App Router with TypeScript
+- Tailwind CSS and local UI primitives in `components/ui.tsx`
+- Prisma ORM with PostgreSQL
+- bcryptjs password hashing and jose JWT cookie sessions
+- OpenAI for optional transcription and structured audits
+- Mock AI fallback for demos and missing API keys
+- Stripe checkout/webhook scaffolding
+- FormSubmit server-side password reset email delivery
+- Recharts for dashboard and admin analytics
 
-### Tech Stack:
-* **Framework**: Next.js 14 (App Router)
-* **Styling**: Tailwind CSS & Vanilla Custom Utilities (Light Enterprise Theme)
-* **Database & ORM**: PostgreSQL with Prisma ORM
-* **Authentication**: Custom JWT Cookie-Session Authentication using `bcryptjs` and Jose
-* **AI & Audio Engine**: OpenAI API (transcription + analysis) with mock telemetry fallbacks
-* **Payment Systems**: Stripe Checkout & Full-Cycle Webhooks (ready for sandbox testing)
-* **Data Visualization**: Recharts (tailored responsive analytics dashboards)
+## App Structure
 
----
+- `app/(auth)`: login, register, forgot password, reset password
+- `app/dashboard`: customer workspace for upload, calls, billing, profile, settings, analytics
+- `app/admin`: admin workspace for calls, customers, payments, categories, settings, security logs
+- `app/api`: auth, calls, AI analysis, analytics, admin users/logs, Stripe
+- `components`: shared UI, app shell, upload, transcript, report, verification, charts
+- `lib`: auth, Prisma client, analytics builders, categories, storage, AI services
+- `prisma`: schema, migrations, and seed data
+- `public/sample-audio`: demo-safe audio placeholders for `/transcription-demo`
 
-## 📁 2. Folder Structure
+## Auth Flow
 
-```
-c:\Users\pc\Desktop\FYP
-├── app/                       # Next.js App Router root
-│   ├── (auth)/                # Route Group for Auth (login, register, forgot-password, reset-password)
-│   ├── admin/                 # Restricted Admin portal sub-layouts and dashboard
-│   ├── api/                   # Serverless endpoint handlers (calls, stripe, auth, AI queue)
-│   ├── dashboard/             # Customer workspace console (calls, analytics, uploads)
-│   ├── globals.css            # Tailored light enterprise theme CSS variables
-│   ├── layout.tsx             # Main HTML context and global layout
-│   └── page.tsx               # High-converting SaaS homepage
-├── components/                # Modular UI component architectures
-│   ├── ui/                    # Base visual elements (buttons, cards, badges)
-│   ├── AppSidebar.tsx         # Sidebar for authenticated consoles
-│   ├── AppShell.tsx           # Workspace responsive grid wrapper
-│   └── TranscriptViewer.tsx   # Pixel-perfect transcript player and keyword highlighter
-├── lib/                       # Utility packages and B2B services
-│   ├── ai/                    # Custom prompts and GPT/mock analysis drivers
-│   ├── auth.ts                # Session cryptography and JWT utilities
-│   ├── prisma.ts              # Global Prisma client singleton instance
-│   └── storage.ts             # Audio file storage utility (saves to public/uploads)
-├── prisma/                    # Schema models, migrations, and seed scripts
-└── public/                    # Scalable static assets, vector icons, and favicons
-```
+Registration posts to `/api/auth/register`, validates the input, hashes the password, creates a `CUSTOMER`, maps the selected plan, sets MVP status to `active`, creates a JWT session cookie, and returns `redirectTo`.
 
----
+Login posts to `/api/auth/login`, verifies the database password hash, rejects inactive accounts, creates the same HTTP-only cookie, and returns the role-specific redirect. Demo customer/admin buttons are only shortcuts that submit demo credentials; they do not bypass real authentication.
 
-## 🛣️ 3. Main Routes & Navigation Map
+`app/dashboard/layout.tsx` requires a signed-in non-admin customer. `app/admin/layout.tsx` requires an `ADMIN`. `getCurrentUser()` returns a sanitized user object and never exposes password hashes or reset tokens to client components.
 
-### Public Routes:
-* `/`: High-converting B2B SaaS Landing Page.
-* `/pricing`: Dynamic billing tier tables with monthly/yearly discounts.
-* `/services` & `/how-it-works`: Trusted corporate brand feature highlights.
-* `/reviews`: Positive customer testimonials and reviews grid.
-* `/transcription-demo`: Interactive playground illustrating real pipeline stages and outcome bypasses without signing up.
+## Upload And AI Flow
 
-### Auth Routes:
-* `/login`: Secure portal supporting database lookups and admin/customer shortcut logins.
-* `/register`: DB-backed account creation.
-* `/forgot-password`: Generates secure recovery tokens and prints reset URLs in local dev.
-* `/reset-password`: Processes password updates and handles safe static page generation.
+`/dashboard/upload` sends audio to `/api/calls/upload`, which stores files under `public/uploads/calls` and creates queued `Call` rows. The client then explicitly calls `/api/ai/analyze/[callId]`.
 
-### Protected Workspaces (Customer):
-* `/dashboard`: Main operational console containing KPI scorecards, upload triggers, and interactive trends.
-* `/dashboard/upload`: drag-and-drop batch audio uploader.
-* `/dashboard/calls`: Multi-parameter search filter panel for database recordings.
-* `/dashboard/calls/[id]`: The **Call Review Cockpit** - housing audio, transcript turns, AI scores, and reviewer verifications.
-* `/dashboard/analytics`: Deep analytics dashboards displaying category distributions and verification outcomes.
+`lib/ai/analyze-call.ts` updates status through transcribing and analyzing, calls OpenAI only when `OPENAI_API_KEY` exists, falls back to mock AI on missing keys or failures, saves an `AIReport`, creates a pending verification row, and marks the call completed. Pages render cached database reports and do not call OpenAI.
 
-### Protected Admin Workspace:
-* `/admin/dashboard`: Platform KPIs, queue health indicators, and customer trends.
-* `/admin/calls`: Platform-wide auditable calls library.
-* `/admin/categories`: Central category manager (supports custom AI prompt rules!).
-* `/admin/customers`: User account manager with role overrides.
+## Call Review Flow
 
----
+`/dashboard/calls/[id]` loads only the current customer’s call. Admin call pages can load all calls. The review view shows audio, transcript, category, sentiment, scores, confidence, recommendations, and verification controls.
 
-## 🔒 4. Core Workflows
+No-live categories are centralized in `lib/categories.ts`: Voicemail, No Answer, Mailbox Full, Beep Tone, Spam Call, and Wrong Number. These records display `N/A` instead of score `0`, show “No live conversation detected,” and are excluded from score averages while remaining in charts.
 
-### A. Authentication & Protection Flow
-1. **Registration**: Hashes plain-text passwords using `bcryptjs` and saves standard Customer users in PostgreSQL.
-2. **Login**: Verifies DB credentials and creates a secure, encrypted JWT containing user data, storing it in an HTTP-only cookie (`session`).
-3. **Guards**: `app/dashboard/layout.tsx` and `app/admin/layout.tsx` verify the JWT cookie. Admin views enforce strict `ADMIN` role rules; unauthorized visits safely redirect to `/login`.
+## Password Reset Flow
 
-### B. Ingestion & Storage Flow
-1. Files uploaded via `/dashboard/upload` are streamed to `/api/calls/upload`.
-2. Audio files are stored under `public/uploads/` via `lib/storage.ts` to guarantee instant local access.
-3. Database entries are initialized in `queued` status.
+`/api/auth/forgot-password` always returns a generic success message. For real users it creates a random token, stores only a SHA-256 hash, sets a 15-minute expiry, logs the request, and optionally sends the reset link with FormSubmit. Development mode may return `resetUrl` when email is disabled or fails; production never exposes the token.
 
-### C. AI Processing Pipeline (`lib/ai/analyze-call.ts`)
-1. Transcribes audio files via OpenAI Whisper API.
-2. Runs structured audits by querying OpenAI Chat Completions.
-3. Incorporates **custom category descriptions and QA guidelines** directly into the system prompt!
-4. Recognizes automated signals (voicemail beeps, spam robocalls) to bypass scoring, setting agent scores to `0` and confidence levels above `95%`.
-5. Caches completed results in the database; calls are **never re-transcribed** once completed.
+`/api/auth/reset-password` hashes the provided token, validates it and its expiry, writes the new bcrypt password hash, clears reset fields, and creates security logs for invalid, expired, and completed attempts.
 
-### D. Billing Cycle & Webhooks (`app/api/stripe/webhook/route.ts`)
-* Implements a full-cycle B2B Stripe billing system supporting `checkout.session.completed`, `customer.subscription.updated` (upgrades/downgrades), `customer.subscription.deleted` (expiration/cancellations), and `invoice.payment_succeeded` renewal records.
+## Billing Flow
 
----
+`/pricing` routes logged-in users to `/dashboard/billing?plan=...` and visitors to `/register?plan=...`. The billing page shows current plan, selected plan, usage, invoices, payment status, and category-based pricing. Stripe checkout remains disabled with a clear message until keys and real Stripe Price IDs are configured.
 
-## ⚙️ 5. Environment Configuration
+Stripe webhooks update subscription status and payment rows. Payment amounts are stored as cents.
 
-```env
-DATABASE_URL="postgresql://username:password@localhost:5432/callauditx"
-JWT_SECRET="your-cryptographically-secure-jwt-signing-secret"
-OPENAI_API_KEY="sk-..."
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
-```
+## Admin Flow
 
----
+Admins can view platform analytics, all calls, AI corrections, security logs, payments, categories, and users. `/api/admin/users` supports sanitized GET, POST, PATCH, and DELETE operations while preventing self-lockout or deletion of the last active admin.
 
-## 🚀 6. Future Workspace Enhancements
+`/admin/payments` shows revenue totals, payment-status charts, plan distribution, and a payment ledger. `/admin/security-logs` shows password reset and email delivery audit events.
 
-1. **Redis Queue System**: Transition the background queue from local memory loops to a full Redis/BullMQ task processor.
-2. **Advanced Agent Coaching**: Implement automatic B2B agent coaching suggestion logs based on transcript mistakes.
-3. **Twilio/RingCentral Pipelines**: Direct integration with voice providers to ingest live call recordings automatically.
+## Analytics Flow
+
+`lib/analytics.ts` builds customer and admin analytics directly from Prisma call, report, verification, user, and payment records. It calculates total/completed/failed/processing calls, no-live count, category distribution, sentiment distribution, average confidence, verification accuracy, calls over time, and revenue.
+
+## Environment Variables
+
+- `DATABASE_URL`: PostgreSQL connection
+- `NEXTAUTH_SECRET`: JWT signing secret
+- `NEXTAUTH_URL`: base URL for reset links and Stripe redirects
+- `OPENAI_API_KEY`: optional real AI mode
+- `OPENAI_TRANSCRIPTION_MODEL`: optional transcription model override
+- `OPENAI_AUDIT_MODEL`: optional audit model override
+- `STRIPE_SECRET_KEY`: optional checkout/webhook mode
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: optional Stripe browser key
+- `STRIPE_WEBHOOK_SECRET`: optional webhook signature verification
+- `FORM_SUBMIT_ENABLED`: enables server-side FormSubmit reset emails
+- `FORM_SUBMIT_FROM_EMAIL`: FormSubmit recipient address
+
+## Future Work
+
+- Production email provider with templates and rate limits
+- Hosted object storage for call audio
+- Stripe billing portal and real product/price configuration
+- Background queue worker for long-running AI jobs
+- Full notification and global search systems
+- Team management and audit-template customization

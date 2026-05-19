@@ -26,6 +26,7 @@ export function AppSidebar({ user, admin = false }: { user: ShellUser; admin?: b
             { href: "/admin/ai-queue", label: "AI Queue", icon: Activity },
             { href: "/admin/corrections", label: "Corrections", icon: RefreshCcw },
             { href: "/admin/customers", label: "Customers", icon: Users },
+            { href: "/admin/payments", label: "Payments", icon: CreditCard },
             { href: "/admin/categories", label: "Categories", icon: Tags },
             { href: "/admin/security-logs", label: "Security Logs", icon: Activity },
             { href: "/admin/settings", label: "Settings", icon: Settings }
@@ -42,7 +43,7 @@ export function AppSidebar({ user, admin = false }: { user: ShellUser; admin?: b
             { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 }
           ]
         },
-        { label: "Billing", items: [{ href: "/pricing", label: "Plans & Usage", icon: CreditCard }] }
+        { label: "Billing", items: [{ href: "/dashboard/billing", label: "Plans & Usage", icon: CreditCard }] }
       ];
 
   return (

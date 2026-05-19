@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity, BarChart3, CheckCircle2, Gauge, PhoneCall, TrendingDown, XCircle } from "lucide-react";
+import { Activity, BarChart3, CheckCircle2, Gauge, PhoneCall, PhoneOff, XCircle } from "lucide-react";
 import { ChartCard, CategoryPie, TimeLine } from "@/components/Charts";
 import { Badge, LinkButton, PageHeader, StatCard } from "@/components/ui";
 import { customerAnalytics } from "@/lib/analytics";
@@ -28,9 +28,9 @@ export default async function DashboardPage() {
         <StatCard title="Total calls" value={data.totalCalls} icon={PhoneCall} detail={`${data.completedCalls} completed`} />
         <StatCard title="Processing" value={data.processingCalls} icon={Activity} detail="Queued, transcribing, or analyzing" />
         <StatCard title="Failed calls" value={data.failedCalls} icon={XCircle} detail="Needs retry or review" />
-        <StatCard title="Average AI score" value={`${data.averageAgentScore}%`} icon={Gauge} detail={`${data.averageConfidence}% avg confidence`} />
+        <StatCard title="Average AI score" value={data.productiveReportCount ? `${data.averageAgentScore}%` : "N/A"} icon={Gauge} detail={`${data.averageConfidence}% avg confidence`} />
+        <StatCard title="No live calls" value={data.noLiveConversationCount} icon={PhoneOff} detail="Voicemail, no answer, or beep" />
         <StatCard title="Positive sentiment" value={data.positiveCount} icon={CheckCircle2} detail={`${data.negativeCount} negative`} />
-        <StatCard title="Top category" value={data.mostCommonCategory} icon={TrendingDown} detail="Most frequent AI classification" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">

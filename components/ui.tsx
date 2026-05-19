@@ -94,7 +94,17 @@ export function GlassCard({ className, ...props }: React.HTMLAttributes<HTMLDivE
    BADGES & STATUS
    ============================================================================ */
 
-export function Badge({ children, tone = "default", size = "md" }: { children: React.ReactNode; tone?: "default" | "success" | "warn" | "danger" | "info"; size?: "sm" | "md" | "lg" }) {
+export function Badge({
+  children,
+  tone = "default",
+  size = "md",
+  className
+}: {
+  children: React.ReactNode;
+  tone?: "default" | "success" | "warn" | "danger" | "info";
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}) {
   const tones = {
     default: "border-[#2563EB]/25 bg-[#EFF6FF] text-[#2563EB]",
     success: "border-[#16A34A]/25 bg-[#F0FDF4] text-[#15803D]",
@@ -110,7 +120,7 @@ export function Badge({ children, tone = "default", size = "md" }: { children: R
   };
 
   return (
-    <span className={cn("inline-flex items-center rounded-full border font-medium", tones[tone], sizes[size])}>
+    <span className={cn("inline-flex items-center rounded-full border font-medium", tones[tone], sizes[size], className)}>
       {children}
     </span>
   );

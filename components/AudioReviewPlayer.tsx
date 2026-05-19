@@ -77,7 +77,7 @@ export function AudioReviewPlayer({ src, fileName, duration }: AudioReviewPlayer
         <audio ref={audioRef} src={src} onLoadStart={() => setIsLoading(true)} onCanPlay={() => setIsLoading(false)} crossOrigin="anonymous" />
 
         {/* File info */}
-        {fileName && <p className="text-xs font-medium text-soft truncate">{fileName}</p>}
+        {fileName && <p className="truncate text-xs font-medium text-[#64748B]">{fileName}</p>}
 
         {/* Main player */}
         <div className="space-y-3">
@@ -100,15 +100,15 @@ export function AudioReviewPlayer({ src, fileName, duration }: AudioReviewPlayer
             </Button>
 
             {/* Time display */}
-            <div className="flex-1 text-center text-sm font-mono text-muted">
+            <div className="flex-1 text-center font-mono text-sm text-[#64748B]">
               <span>{formatTime(currentTime)}</span>
               <span className="mx-2">/</span>
               <span>{formatTime(totalDuration)}</span>
             </div>
 
             {/* Volume */}
-            <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700/50 hover:bg-slate-800/30 transition">
-              <Volume2 className="h-4 w-4 text-primary" />
+            <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#D8E1EE] bg-white transition hover:bg-[#F5F7FB]">
+              <Volume2 className="h-4 w-4 text-[#2563EB]" />
             </button>
           </div>
 
@@ -120,7 +120,7 @@ export function AudioReviewPlayer({ src, fileName, duration }: AudioReviewPlayer
               max={totalDuration || 0}
               value={currentTime}
               onChange={handleProgressChange}
-              className="h-1.5 w-full cursor-pointer rounded-full bg-slate-800/50 accent-primary"
+              className="h-1.5 w-full cursor-pointer rounded-full bg-[#E2E8F0] accent-[#2563EB]"
             />
           </div>
 
@@ -133,8 +133,8 @@ export function AudioReviewPlayer({ src, fileName, duration }: AudioReviewPlayer
                 className={cn(
                   "rounded-lg border px-2.5 py-1.5 text-xs font-medium transition",
                   playbackRate === rate
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-slate-700/50 text-slate-400 hover:border-slate-600 hover:text-slate-300"
+                    ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
+                    : "border-[#D8E1EE] text-[#64748B] hover:border-[#2563EB]/40 hover:text-[#2563EB]"
                 )}
               >
                 {rate}x

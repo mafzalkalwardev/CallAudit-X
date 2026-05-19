@@ -13,7 +13,7 @@ import { ProcessingPipeline, type PipelineStep } from "@/components/ProcessingPi
 const salesCall = {
   label: "Sales Call",
   fileName: "sales-call-demo.m4a",
-  audioSrc: "/sample-audio/sales-call.mp3",
+  audioSrc: "/sample-audio/sales-call.wav",
   transcript: [
     { timestamp: "00:00", speaker: "Agent" as const, text: "Thank you for calling CallAudit X. This is Sarah speaking. How can I help you today?" },
     { timestamp: "00:05", speaker: "Customer" as const, text: "Hi Sarah, I'm interested in your AI call auditing platform for our sales team." },
@@ -45,7 +45,7 @@ const salesCall = {
 const supportCall = {
   label: "Support Call",
   fileName: "support-call-demo.wav",
-  audioSrc: "/sample-audio/support-call.mp3",
+  audioSrc: "/sample-audio/support-call.wav",
   transcript: [
     { timestamp: "00:00", speaker: "Agent" as const, text: "Thank you for calling support. This is Mike. How can I assist you today?" },
     { timestamp: "00:06", speaker: "Customer" as const, text: "Hi, I'm having trouble with my dashboard. The analytics page isn't loading." },
@@ -71,36 +71,31 @@ const supportCall = {
   }
 };
 
-const complaintCall = {
-  label: "Complaint Call",
-  fileName: "complaint-call-demo.mp3",
-  audioSrc: "/sample-audio/complaint-call.mp3",
+const voicemailCall = {
+  label: "Voicemail / No Answer",
+  fileName: "voicemail-no-answer-demo.mp3",
+  audioSrc: "/sample-audio/voicemail-no-answer.wav",
   transcript: [
-    { timestamp: "00:00", speaker: "Agent" as const, text: "Thank you for calling. This is Lisa. How can I help you?" },
-    { timestamp: "00:05", speaker: "Customer" as const, text: "I'm very frustrated. I was overcharged on my invoice and nobody has gotten back to me in 3 days." },
-    { timestamp: "00:14", speaker: "Agent" as const, text: "I sincerely apologize for the inconvenience. Let me pull up your account right away." },
-    { timestamp: "00:20", speaker: "Customer" as const, text: "This is unacceptable. I've sent three emails and no one has responded." },
-    { timestamp: "00:27", speaker: "Agent" as const, text: "You're absolutely right, and I understand your frustration. I can see the billing error and I'm processing a refund now." },
-    { timestamp: "00:38", speaker: "Customer" as const, text: "Finally. How long will the refund take?" },
-    { timestamp: "00:42", speaker: "Agent" as const, text: "3-5 business days. I'm also adding a service credit to your account for the inconvenience." },
-    { timestamp: "00:52", speaker: "Customer" as const, text: "Alright. I appreciate you resolving this." }
+    { timestamp: "00:00", speaker: "Agent" as const, text: "Call connected to automated voicemail greeting." },
+    { timestamp: "00:04", speaker: "Customer" as const, text: "Please leave a message after the beep." },
+    { timestamp: "00:08", speaker: "Customer" as const, text: "[Beep tone]" }
   ],
   report: {
-    summary: "Complaint call about billing overcharge and delayed support response. Agent resolved issue with refund and service credit.",
-    category: "Complaint",
-    categoryReason: "Customer reported billing error and expressed frustration about delayed support response.",
-    sentiment: "Negative" as const,
-    customerIntent: "Resolve billing dispute",
-    customerMood: "Frustrated, partially satisfied at resolution",
-    callOutcome: "Refund processed, credit applied",
-    recommendedAction: "Escalate email response times; review billing process for similar errors",
-    mistakes: ["Major: 3-day email response delay should be investigated", "Minor: Agent should have offered faster refund option"],
-    keywords: ["overcharge", "refund", "billing", "frustrated", "email response", "credit"],
-    scores: { agentScore: 78, leadQualityScore: 10, callQualityScore: 72, confidenceScore: 88 }
+    summary: "No live conversation was detected. The audio contains an automated voicemail prompt and beep tone only.",
+    category: "Voicemail",
+    categoryReason: "The recording contains answering-machine language and a beep tone without a live customer-agent exchange.",
+    sentiment: "Neutral" as const,
+    customerIntent: "None - automated signal detected",
+    customerMood: "Neutral",
+    callOutcome: "No live conversation detected",
+    recommendedAction: "Retry the call or upload a different recording if this should contain a live conversation.",
+    mistakes: ["None - call did not reach a live agent."],
+    keywords: ["voicemail", "beep tone", "no answer", "retry"],
+    scores: { agentScore: "N/A", leadQualityScore: "N/A", callQualityScore: "N/A", confidenceScore: "N/A" }
   }
 };
 
-const sampleCalls = [salesCall, supportCall, complaintCall];
+const sampleCalls = [salesCall, supportCall, voicemailCall];
 
 export default function TranscriptionDemoPage() {
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -152,7 +147,6 @@ export default function TranscriptionDemoPage() {
               onClick={() => handleSelectCall(idx)}
               className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${idx === selectedIdx ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-[#D8E1EE] bg-white text-[#64748B] hover:border-[#2563EB]/30 hover:text-[#0F172A]"}`}
             >
-              {call.label === "Sales Call" ? "📞" : call.label === "Support Call" ? "🎧" : "⚠️"}
               {call.label}
             </button>
           ))}
@@ -161,7 +155,7 @@ export default function TranscriptionDemoPage() {
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
           {/* Left: Processing + Transcript + Report */}
           <div className="space-y-6">
-            {/* Audio player placeholder */}
+            {/* Audio player */}
             <Card>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">Call Recording</p>
@@ -170,6 +164,9 @@ export default function TranscriptionDemoPage() {
               <div className="flex items-center gap-3 rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4">
                 <Mic className="h-5 w-5 text-[#2563EB]" />
                 <div className="flex-1">
+                  <audio className="mb-3 w-full" controls src={selected.audioSrc}>
+                    <track kind="captions" />
+                  </audio>
                   <div className="flex h-8 items-end gap-1">
                     {Array.from({ length: 40 }).map((_, i) => (
                       <span
@@ -179,7 +176,7 @@ export default function TranscriptionDemoPage() {
                       />
                     ))}
                   </div>
-                  <p className="mt-2 text-xs text-[#475569] font-medium">Sample audio — add .mp3 file to /public/sample-audio/ for real playback</p>
+                  <p className="mt-2 text-xs text-[#475569] font-medium">Demo-safe sample audio for playback and pipeline animation.</p>
                 </div>
               </div>
             </Card>
@@ -265,7 +262,7 @@ export default function TranscriptionDemoPage() {
                   <div className="flex items-center gap-2">
                     <span className={`h-2.5 w-2.5 rounded-full ${verificationStatus === "pending" ? "bg-[#F59E0B]" : verificationStatus === "correct" ? "bg-[#16A34A]" : "bg-[#DC2626]"}`} />
                     <span className="text-sm font-semibold text-[#0F172A]">
-                      {verificationStatus === "pending" ? "Pending Review" : verificationStatus === "correct" ? "✓ Verified Correct" : "✗ Corrected"}
+                      {verificationStatus === "pending" ? "Pending Review" : verificationStatus === "correct" ? "Approved AI" : "Correction needed"}
                     </span>
                   </div>
                 </Card>
@@ -278,13 +275,13 @@ export default function TranscriptionDemoPage() {
                       onClick={() => { setVerificationStatus("correct"); setSaved(false); }}
                       className={`w-full rounded-xl border px-4 py-3 text-sm font-semibold transition ${verificationStatus === "correct" ? "border-[#16A34A] bg-[#F0FDF4] text-[#15803D]" : "border-[#D8E1EE] bg-white text-[#64748B] hover:border-[#16A34A]/30 hover:bg-[#F0FDF4]"}`}
                     >
-                      ✓ AI Review is Correct
+                      Approve AI
                     </button>
                     <button
                       onClick={() => { setVerificationStatus("incorrect"); setSaved(false); }}
                       className={`w-full rounded-xl border px-4 py-3 text-sm font-semibold transition ${verificationStatus === "incorrect" ? "border-[#DC2626] bg-[#FEF2F2] text-[#DC2626]" : "border-[#D8E1EE] bg-white text-[#64748B] hover:border-[#DC2626]/30 hover:bg-[#FEF2F2]"}`}
                     >
-                      ✗ I Have a Correction
+                      Reject AI
                     </button>
                   </div>
                 </Card>
@@ -292,7 +289,7 @@ export default function TranscriptionDemoPage() {
                 {/* Correction form */}
                 {verificationStatus === "incorrect" && (
                   <Card className="border-[#F59E0B]/30 bg-[#FFFBEB]">
-                    <p className="text-sm font-semibold mb-4 text-[#0F172A]">Submit Correction</p>
+                    <p className="text-sm font-semibold mb-4 text-[#0F172A]">Correct Category</p>
                     {saved ? (
                       <div className="flex items-center gap-2 rounded-xl border border-[#16A34A]/25 bg-[#F0FDF4] px-4 py-3">
                         <CheckCircle2 className="h-4 w-4 text-[#16A34A]" />
@@ -335,7 +332,7 @@ export default function TranscriptionDemoPage() {
                           disabled={!correctedCategory}
                           onClick={handleSaveCorrection}
                         >
-                          Save Correction
+                          Submit Feedback
                         </Button>
                       </div>
                     )}
@@ -374,15 +371,15 @@ export default function TranscriptionDemoPage() {
         {/* Bottom feature showcase */}
         <div className="mt-16 grid gap-5 md:grid-cols-3">
           <GlassCard className="p-6">
-            <h3 className="font-bold text-[#0F172A] mb-2">📝 Smart Transcription</h3>
+            <h3 className="font-bold text-[#0F172A] mb-2">Smart Transcription</h3>
             <p className="text-sm text-[#64748B]">Accurate, timestamped transcripts with speaker detection and noise filtering.</p>
           </GlassCard>
           <GlassCard className="p-6">
-            <h3 className="font-bold text-[#0F172A] mb-2">🤖 AI Analysis</h3>
+            <h3 className="font-bold text-[#0F172A] mb-2">AI Analysis</h3>
             <p className="text-sm text-[#64748B]">Automatic category detection, sentiment analysis, and audit scoring in seconds.</p>
           </GlassCard>
           <GlassCard className="p-6">
-            <h3 className="font-bold text-[#0F172A] mb-2">✓ Human Verification</h3>
+            <h3 className="font-bold text-[#0F172A] mb-2">Human Verification</h3>
             <p className="text-sm text-[#64748B]">Review findings, submit corrections, and teach the AI for continuous improvement.</p>
           </GlassCard>
         </div>

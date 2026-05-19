@@ -10,7 +10,8 @@ import { plans } from "@/lib/public-data";
 
 export default function RegisterPage({ searchParams }: { searchParams: { plan?: string } }) {
   const router = useRouter();
-  const selected = plans.find((plan) => plan.id === searchParams.plan) || plans[0];
+  const planParam = searchParams.plan === "growth" ? "pro" : searchParams.plan;
+  const selected = plans.find((plan) => plan.id === planParam) || plans[0];
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -32,7 +33,7 @@ export default function RegisterPage({ searchParams }: { searchParams: { plan?: 
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, company, password })
+        body: JSON.stringify({ name, email, company, password, plan: selected.id })
       });
 
       const data = await res.json();
@@ -40,7 +41,7 @@ export default function RegisterPage({ searchParams }: { searchParams: { plan?: 
         throw new Error(data.error || "Failed to register");
       }
 
-      router.push("/dashboard");
+      router.push(data.redirectTo || "/dashboard");
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -134,7 +135,7 @@ export default function RegisterPage({ searchParams }: { searchParams: { plan?: 
             <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#64748B]">Password *</span>
             <input 
               className="input bg-white border border-[#D8E1EE]" 
-              placeholder="Min 6 characters" 
+                placeholder="Min 8 characters" 
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}

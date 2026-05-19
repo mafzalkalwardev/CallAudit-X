@@ -28,6 +28,9 @@ export default async function BillingPage({ searchParams }: { searchParams: { pl
   const percentage = Math.min(100, Math.round((callsUsed / limit) * 100));
 
   const plansList = await prisma.plan.findMany({ orderBy: { price: "asc" } });
+  const selectedPlan = selectedPlanName
+    ? plansList.find((plan) => plan.name.toLowerCase() === (selectedPlanName === "growth" ? "pro" : selectedPlanName).toLowerCase())
+    : null;
 
   const categories = [
     { name: "Sales QA", price: 0.12, description: "Lead scoring & intent detection" },
@@ -44,6 +47,13 @@ export default async function BillingPage({ searchParams }: { searchParams: { pl
         title="Billing & Subscriptions"
         subtitle="Manage your platform limits, active subscription tiers, and review detailed invoice ledgers."
       />
+
+      {selectedPlan ? (
+        <Card className="border-[#2563EB]/20 bg-[#EFF6FF]">
+          <p className="text-sm font-semibold text-[#2563EB]">Selected plan: {selectedPlan.name}</p>
+          <p className="mt-1 text-xs text-[#64748B]">Review usage and checkout status below before changing plans.</p>
+        </Card>
+      ) : null}
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Left Side: Current Plan + Usage */}
@@ -180,7 +190,7 @@ export default async function BillingPage({ searchParams }: { searchParams: { pl
                           Current Plan
                         </Button>
                       ) : (
-                        <CheckoutButton planId={plan.id} />
+                        <CheckoutButton planId={plan.id} disabled={!isStripeConfigured} />
                       )}
                     </div>
                   </div>

@@ -38,6 +38,7 @@ function buildAnalytics(calls: AnalyticsCall[]) {
   
   // Filter out automated N/A calls from averages
   const productiveReports = reports.filter((r) => !isNoLiveConversation(r.category.name));
+  const noLiveConversationCount = reports.filter((r) => isNoLiveConversation(r.category.name)).length;
 
   const completedCalls = calls.filter((c) => c.status === "completed" || c.status === "analyzed").length;
   const failedCalls = calls.filter((c) => c.status === "failed").length;
@@ -76,8 +77,10 @@ function buildAnalytics(calls: AnalyticsCall[]) {
   return {
     totalCalls: calls.length,
     analyzedCalls: analyzed.length,
+    productiveReportCount: productiveReports.length,
     completedCalls,
     failedCalls,
+    noLiveConversationCount,
     processingCalls,
     averageAgentScore: average(productiveReports.map((r) => r.agentScore)),
     averageLeadQuality: average(productiveReports.map((r) => r.leadQualityScore)),

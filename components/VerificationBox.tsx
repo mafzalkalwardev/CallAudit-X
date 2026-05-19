@@ -43,7 +43,7 @@ export function VerificationBox({ callId, categories, status }: { callId: string
       <form action={submit} className="space-y-3">
         <div className="flex flex-col gap-2">
           <Button name="status" value="correct" type="submit" variant="primary" disabled={busy} className="w-full">
-            ✓ AI Review is Correct
+            Approve AI
           </Button>
           <button
             type="button"
@@ -51,7 +51,7 @@ export function VerificationBox({ callId, categories, status }: { callId: string
             disabled={busy}
             className="w-full rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] px-4 py-3 text-sm font-semibold text-[#64748B] hover:border-[#2563EB]/30 hover:bg-[#EFF6FF] hover:text-[#2563EB] transition"
           >
-            ✗ AI Review has Mistakes
+            Reject AI / Correct Category
           </button>
         </div>
 

@@ -53,7 +53,7 @@ export default function LoginPage() {
         throw new Error(data.error || "Invalid credentials");
       }
 
-      router.push(targetMode === "admin" ? "/admin/dashboard" : "/dashboard");
+      router.push(data.redirectTo || (data.role === "ADMIN" ? "/admin/dashboard" : "/dashboard"));
       router.refresh();
     } catch (err: any) {
       setError(err.message);
