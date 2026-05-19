@@ -13,17 +13,36 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Password must be at least 6 characters long" }, { status: 400 });
     }
 
+    // Find user by token first to distinguish between invalid and expired tokens
     const user = await prisma.user.findFirst({
-      where: {
-        resetToken: token,
-        resetTokenExpiry: {
-          gt: new Date()
-        }
-      }
+      where: { resetToken: token }
     });
 
     if (!user) {
-      return NextResponse.json({ error: "Invalid or expired password reset token" }, { status: 400 });
+      await prisma.securityLog.create({
+        data: {
+          type: "PASSWORD_RESET_INVALID_TOKEN",
+          email: "unknown",
+          status: "failed",
+          message: `Attempted password reset with invalid token: ${token}`
+        }
+      });
+      return NextResponse.json({ error: "Invalid password reset token" }, { status: 400 });
+    }
+
+    // Check expiry
+    const isExpired = user.resetTokenExpiry && new Date(user.resetTokenExpiry) < new Date();
+    if (isExpired) {
+      await prisma.securityLog.create({
+        data: {
+          type: "PASSWORD_RESET_EXPIRED",
+          email: user.email,
+          userId: user.id,
+          status: "failed",
+          message: "Attempted password reset with expired token."
+        }
+      });
+      return NextResponse.json({ error: "Expired password reset token" }, { status: 400 });
     }
 
     const passwordHash = await hashPassword(password);
@@ -34,6 +53,16 @@ export async function POST(request: Request) {
         passwordHash,
         resetToken: null,
         resetTokenExpiry: null
+      }
+    });
+
+    await prisma.securityLog.create({
+      data: {
+        type: "PASSWORD_RESET_COMPLETED",
+        email: user.email,
+        userId: user.id,
+        status: "success",
+        message: "Successfully reset password."
       }
     });
 

@@ -80,9 +80,9 @@ export default function ForgotPasswordPage() {
               <div className="flex items-start gap-3 rounded-xl border border-[#16A34A]/20 bg-[#F0FDF4] p-4">
                 <MailCheck className="h-5 w-5 text-[#16A34A] shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-bold text-[#15803D]">Reset Link Generated</p>
+                  <p className="text-sm font-bold text-[#15803D]">Request Processed</p>
                   <p className="mt-1 text-xs text-[#64748B] leading-relaxed">
-                    A password recovery link has been created in the database.
+                    If an account exists with that email, a secure password recovery link has been generated.
                   </p>
                 </div>
               </div>

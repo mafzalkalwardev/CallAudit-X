@@ -94,23 +94,25 @@ export function Topbar({ user, admin = false }: { user: ShellUser; admin?: boole
               </div>
               <div className="p-2">
                 <Link
-                  href="/dashboard"
+                  href={admin ? "/admin/profile" : "/dashboard/profile"}
                   onClick={() => setDropdownOpen(false)}
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#64748B] hover:bg-[#F5F7FB] hover:text-[#0F172A] transition"
                 >
                   <User className="h-4 w-4" />
                   Profile
                 </Link>
+                {!admin && (
+                  <Link
+                    href="/dashboard/billing"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#64748B] hover:bg-[#F5F7FB] hover:text-[#0F172A] transition"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Billing
+                  </Link>
+                )}
                 <Link
-                  href="/pricing"
-                  onClick={() => setDropdownOpen(false)}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#64748B] hover:bg-[#F5F7FB] hover:text-[#0F172A] transition"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Billing
-                </Link>
-                <Link
-                  href="/dashboard"
+                  href={admin ? "/admin/settings" : "/dashboard/settings"}
                   onClick={() => setDropdownOpen(false)}
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#64748B] hover:bg-[#F5F7FB] hover:text-[#0F172A] transition"
                 >

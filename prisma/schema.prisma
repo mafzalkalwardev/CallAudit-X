@@ -144,3 +144,14 @@ model Payment {
   createdAt       DateTime @default(now())
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model SecurityLog {
+  id        String   @id @default(cuid())
+  type      String
+  email     String
+  userId    String?
+  status    String
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+}

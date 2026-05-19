@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { Badge, Card, LinkButton, PageHeader, ScoreCard } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
+import { isNoLiveConversation } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export default async function AdminCallDetailPage({ params }: { params: { id: st
   });
   if (!call) notFound();
   const report = call.report;
+  const isAutomated = report && isNoLiveConversation(report.category.name);
   return (
     <>
       <PageHeader title={call.title} subtitle={`${call.user.email} - ${call.createdAt.toLocaleString()}`} action={<LinkButton href={`/api/calls/${call.id}/report`} className="border border-white/10 bg-white/5 text-white hover:bg-white/10">Download report</LinkButton>} />
@@ -23,7 +25,7 @@ export default async function AdminCallDetailPage({ params }: { params: { id: st
         </div>
         <div className="space-y-4">
           <Card><p className="text-sm text-slate-400">Customer</p><p className="mt-1 font-medium">{call.user.name}</p><p className="text-sm text-slate-400">{call.user.email}</p></Card>
-          {report ? <><ScoreCard label="Agent score" score={report.agentScore} /><ScoreCard label="Lead quality" score={report.leadQualityScore} /><ScoreCard label="AI confidence" score={report.confidenceScore} /></> : null}
+          {report ? <><ScoreCard label="Agent score" score={isAutomated ? "N/A" : report.agentScore} /><ScoreCard label="Lead quality" score={isAutomated ? "N/A" : report.leadQualityScore} /><ScoreCard label="AI confidence" score={isAutomated ? "N/A" : report.confidenceScore} /></> : null}
         </div>
       </div>
     </>

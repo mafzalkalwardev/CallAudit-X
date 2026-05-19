@@ -184,8 +184,9 @@ export function StatCard({
   );
 }
 
-export function ScoreCard({ label, score, size = "md" }: { label: string; score: number; size?: "sm" | "md" | "lg" }) {
-  const getScoreColor = (s: number) => {
+export function ScoreCard({ label, score, size = "md" }: { label: string; score: number | string; size?: "sm" | "md" | "lg" }) {
+  const getScoreColor = (s: number | string) => {
+    if (typeof s === "string") return "from-[#94A3B8] to-[#CBD5E1]"; // Neutral color for N/A
     if (s >= 80) return "from-[#16A34A] to-[#22C55E]";
     if (s >= 60) return "from-[#F59E0B] to-[#FBBF24]";
     return "from-[#DC2626] to-[#EF4444]";
@@ -202,10 +203,10 @@ export function ScoreCard({ label, score, size = "md" }: { label: string; score:
       <p className={cn("font-semibold uppercase tracking-wider text-[#64748B]", sizes[size].label)}>{label}</p>
       <p className={cn("mt-2 font-bold tracking-tight", sizes[size].score)}>
         <span className="text-[#0F172A]">{score}</span>
-        <span className="text-sm text-[#94A3B8]">/100</span>
+        {typeof score === "number" && <span className="text-sm text-[#94A3B8]">/100</span>}
       </p>
       <div className="mt-3 h-2.5 rounded-full bg-[#E2E8F0]">
-        <div className={cn("h-full rounded-full bg-gradient-to-r", getScoreColor(score))} style={{ width: `${score}%` }} />
+        <div className={cn("h-full rounded-full bg-gradient-to-r", getScoreColor(score))} style={{ width: typeof score === "number" ? `${score}%` : "100%" }} />
       </div>
     </Card>
   );

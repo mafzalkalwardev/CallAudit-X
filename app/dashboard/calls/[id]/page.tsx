@@ -4,6 +4,7 @@ import { VerificationBox } from "@/components/VerificationBox";
 import { Badge, Card, LinkButton, PageHeader, ScoreCard } from "@/components/ui";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isNoLiveConversation } from "@/lib/categories";
 import { ShieldAlert, Download, ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +47,7 @@ export default async function CallDetailPage({ params }: { params: { id: string 
   const report = call.report;
   const segments = report ? transcriptSegments(report) : [];
 
-  const isAutomated = report && ["Voicemail", "Spam Call", "Wrong Number"].includes(report.category.name);
+  const isAutomated = report && isNoLiveConversation(report.category.name);
 
   return (
     <>
@@ -192,10 +193,10 @@ export default async function CallDetailPage({ params }: { params: { id: string 
         <div className="space-y-4">
           {report ? (
             <>
-              <ScoreCard label="Agent score" score={report.agentScore} />
-              <ScoreCard label="Lead quality" score={report.leadQualityScore} />
-              <ScoreCard label="Call quality" score={report.callQualityScore} />
-              <ScoreCard label="AI confidence" score={report.confidenceScore} />
+              <ScoreCard label="Agent score" score={isAutomated ? "N/A" : report.agentScore} />
+              <ScoreCard label="Lead quality" score={isAutomated ? "N/A" : report.leadQualityScore} />
+              <ScoreCard label="Call quality" score={isAutomated ? "N/A" : report.callQualityScore} />
+              <ScoreCard label="AI confidence" score={isAutomated ? "N/A" : report.confidenceScore} />
             </>
           ) : null}
           <VerificationBox callId={call.id} categories={categories} status={call.verification?.status || "pending"} />

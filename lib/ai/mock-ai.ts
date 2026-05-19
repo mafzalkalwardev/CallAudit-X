@@ -1,4 +1,5 @@
 import { Category, Sentiment } from "@prisma/client";
+import { isNoLiveConversation } from "@/lib/categories";
 
 export type TranscriptSegment = {
   timestamp: string;
@@ -209,7 +210,7 @@ export function mockAudit(categories: Category[], metadata: CallMetadata, transc
   const scenario = scenarios[category.name] || scenarios["Customer Support"];
   const hash = stableHash(`${metadata.title}${metadata.fileName}${metadata.agentName}${metadata.notes}`);
   
-  const isAutomated = ["Voicemail", "Spam Call", "Wrong Number"].includes(category.name);
+  const isAutomated = isNoLiveConversation(category.name);
   
   const sentiment: Sentiment = 
     category.name === "Complaint" 

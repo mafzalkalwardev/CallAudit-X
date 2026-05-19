@@ -1,6 +1,7 @@
 import { AIReport, Call, Category, ReviewVerification, Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { average } from "@/lib/utils";
+import { isNoLiveConversation } from "@/lib/categories";
 
 export async function customerAnalytics(userId: string) {
   const calls = await prisma.call.findMany({
@@ -34,10 +35,14 @@ type AnalyticsCall = Call & {
 function buildAnalytics(calls: AnalyticsCall[]) {
   const analyzed = calls.filter((c) => c.report);
   const reports = analyzed.map((c) => c.report!);
+  
+  // Filter out automated N/A calls from averages
+  const productiveReports = reports.filter((r) => !isNoLiveConversation(r.category.name));
+
   const completedCalls = calls.filter((c) => c.status === "completed" || c.status === "analyzed").length;
   const failedCalls = calls.filter((c) => c.status === "failed").length;
   const processingCalls = calls.filter((c) => ["queued", "transcribing", "analyzing", "uploaded"].includes(c.status)).length;
-  const categoryMap = new Map<string, { name: string; color: string; count: number; scoreTotal: number }>();
+  const categoryMap = new Map<string, { name: string; color: string; count: number; scoreTotal: number; productiveCount: number }>();
   const sentimentMap = new Map<string, number>();
   const dailyMap = new Map<string, number>();
 
@@ -46,9 +51,13 @@ function buildAnalytics(calls: AnalyticsCall[]) {
     dailyMap.set(day, (dailyMap.get(day) || 0) + 1);
     if (!call.report) continue;
     const category = call.report.category;
-    const current = categoryMap.get(category.name) || { name: category.name, color: category.color, count: 0, scoreTotal: 0 };
+    const isAuto = isNoLiveConversation(category.name);
+    const current = categoryMap.get(category.name) || { name: category.name, color: category.color, count: 0, scoreTotal: 0, productiveCount: 0 };
     current.count += 1;
-    current.scoreTotal += call.report.agentScore;
+    if (!isAuto) {
+      current.scoreTotal += call.report.agentScore;
+      current.productiveCount += 1;
+    }
     categoryMap.set(category.name, current);
     sentimentMap.set(call.report.sentiment, (sentimentMap.get(call.report.sentiment) || 0) + 1);
   }
@@ -61,7 +70,7 @@ function buildAnalytics(calls: AnalyticsCall[]) {
     value: item.count,
     color: item.color,
     percentage: analyzed.length ? Math.round((item.count / analyzed.length) * 100) : 0,
-    averageScore: Math.round(item.scoreTotal / item.count)
+    averageScore: item.productiveCount > 0 ? Math.round(item.scoreTotal / item.productiveCount) : 0
   }));
 
   return {
@@ -70,9 +79,9 @@ function buildAnalytics(calls: AnalyticsCall[]) {
     completedCalls,
     failedCalls,
     processingCalls,
-    averageAgentScore: average(reports.map((r) => r.agentScore)),
-    averageLeadQuality: average(reports.map((r) => r.leadQualityScore)),
-    averageCallQuality: average(reports.map((r) => r.callQualityScore)),
+    averageAgentScore: average(productiveReports.map((r) => r.agentScore)),
+    averageLeadQuality: average(productiveReports.map((r) => r.leadQualityScore)),
+    averageCallQuality: average(productiveReports.map((r) => r.callQualityScore)),
     averageConfidence: average(reports.map((r) => r.confidenceScore)),
     aiAccuracy: verified.length ? Math.round((correct.length / verified.length) * 100) : 0,
     verifiedCorrect: correct.length,

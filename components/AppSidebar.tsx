@@ -27,6 +27,7 @@ export function AppSidebar({ user, admin = false }: { user: ShellUser; admin?: b
             { href: "/admin/corrections", label: "Corrections", icon: RefreshCcw },
             { href: "/admin/customers", label: "Customers", icon: Users },
             { href: "/admin/categories", label: "Categories", icon: Tags },
+            { href: "/admin/security-logs", label: "Security Logs", icon: Activity },
             { href: "/admin/settings", label: "Settings", icon: Settings }
           ]
         }

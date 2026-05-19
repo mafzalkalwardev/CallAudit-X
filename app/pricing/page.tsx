@@ -81,8 +81,7 @@ export default function PricingPage() {
 
   const handlePlanSelection = (planName: string) => {
     if (authenticated) {
-      setSelectedPlanName(planName);
-      setShowDemoModal(true);
+      router.push(`/dashboard/billing?plan=${planName.toLowerCase()}`);
     } else {
       router.push(`/register?plan=${planName.toLowerCase()}`);
     }

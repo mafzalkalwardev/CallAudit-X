@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Phone } from "lucide-react";
 import { PageHeader, Card, Badge, StatCard } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
+import { isNoLiveConversation } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +70,9 @@ export default async function AdminCallsPage() {
                       </Badge>
                     ) : <span className="text-[#94A3B8]">—</span>}
                   </td>
-                  <td className="px-5 py-4 font-bold text-[#2563EB]">{call.report?.agentScore ?? "—"}</td>
+                  <td className="px-5 py-4 font-bold text-[#2563EB]">
+                    {call.report ? (isNoLiveConversation(call.report.category.name) ? "N/A" : call.report.agentScore) : "—"}
+                  </td>
                   <td className="px-5 py-4">
                     <Badge tone={call.status === "failed" ? "danger" : call.status === "analyzed" ? "success" : call.status === "uploaded" ? "warn" : "default"}>
                       {call.status}

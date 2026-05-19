@@ -4,6 +4,7 @@ import { Badge, LinkButton, PageHeader } from "@/components/ui";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { isNoLiveConversation } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -125,7 +126,9 @@ export default async function CallsPage({ searchParams }: { searchParams: Record
                       </Badge>
                     ) : <span className="text-[#94A3B8]">—</span>}
                   </td>
-                  <td className="p-4 font-bold text-[#2563EB]">{call.report?.agentScore ?? "—"}</td>
+                  <td className="p-4 font-bold text-[#2563EB]">
+                    {call.report ? (isNoLiveConversation(call.report.category.name) ? "N/A" : call.report.agentScore) : "—"}
+                  </td>
                   <td className="p-4 text-[#334155]">{call.report ? `${call.report.confidenceScore}%` : "—"}</td>
                   <td className="p-4">
                     <Badge tone={statusTone(call.status)}>{call.status}</Badge>

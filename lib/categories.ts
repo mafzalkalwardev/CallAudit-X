@@ -8,8 +8,22 @@ export const defaultCategories = [
   { name: "Voicemail", description: "Recorded message without live conversation.", color: "#fbbf24", icon: "Voicemail" },
   { name: "Follow-Up Required", description: "Conversation needs a next touch from the team.", color: "#38bdf8", icon: "RefreshCcw" },
   { name: "Product Inquiry", description: "Caller asks product, feature, or pricing questions.", color: "#c084fc", icon: "PackageSearch" },
-  { name: "Successful Conversion", description: "Call resulted in a booking, sale, or qualified win.", color: "#4ade80", icon: "CircleCheckBig" }
+  { name: "Successful Conversion", description: "Call resulted in a booking, sale, or qualified win.", color: "#4ade80", icon: "CircleCheckBig" },
+  { name: "No Answer", description: "The call rang but was never answered.", color: "#9ca3af", icon: "PhoneOff" },
+  { name: "Mailbox Full", description: "Reached a full voicemail box.", color: "#f59e0b", icon: "Voicemail" },
+  { name: "Beep Tone", description: "Only an automated beep tone was recorded.", color: "#d97706", icon: "Volume2" }
 ];
+
+export function isNoLiveConversation(categoryName: string): boolean {
+  return [
+    "Voicemail",
+    "No Answer",
+    "Mailbox Full",
+    "Beep Tone",
+    "Spam Call",
+    "Wrong Number"
+  ].includes(categoryName);
+}
 
 export const plans = [
   { name: "Starter", price: 2900, monthlyCallLimit: 50, features: ["50 calls/month", "Basic AI report", "Audio playback", "Verification workflow"], stripePriceId: "price_starter_test" },
