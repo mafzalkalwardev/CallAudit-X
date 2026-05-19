@@ -15,6 +15,7 @@ const comparison = [
 ] as const;
 
 export default function PricingPage() {
+  const stripeConfigured = Boolean(process.env.STRIPE_SECRET_KEY && process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
   return (
     <PublicShell>
       <main className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -32,7 +33,7 @@ export default function PricingPage() {
         <div className="mt-12 grid gap-6 lg:grid-cols-3">{plans.map((plan) => <PricingCard key={plan.id} plan={plan} highlighted={plan.id === "pro"} />)}</div>
 
         <div className="mt-8 text-center">
-          <StatusBadge tone="warning">Stripe checkout will be connected during backend phase.</StatusBadge>
+          <StatusBadge tone={stripeConfigured ? "cyan" : "warning"}>{stripeConfigured ? "Stripe keys detected. Checkout wiring remains disabled for this MVP step." : "Stripe not configured yet. Plan buttons route to registration."}</StatusBadge>
         </div>
 
         <GlassCard className="mt-12 overflow-x-auto">

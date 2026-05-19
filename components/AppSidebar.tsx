@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, ChevronDown, CreditCard, FileAudio, LayoutDashboard, ShieldCheck, Tags, UploadCloud, Users } from "lucide-react";
+import { Activity, BarChart3, ChevronDown, CreditCard, FileAudio, LayoutDashboard, RefreshCcw, Settings, ShieldCheck, Tags, UploadCloud, Users } from "lucide-react";
 import { Role } from "@prisma/client";
 import { cn } from "@/lib/utils";
 
@@ -21,9 +21,13 @@ export function AppSidebar({ user, admin = false }: { user: ShellUser; admin?: b
           label: "Platform",
           items: [
             { href: "/admin", label: "Overview", icon: LayoutDashboard },
+            { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
             { href: "/admin/calls", label: "All Calls", icon: FileAudio },
+            { href: "/admin/ai-queue", label: "AI Queue", icon: Activity },
+            { href: "/admin/corrections", label: "Corrections", icon: RefreshCcw },
             { href: "/admin/customers", label: "Customers", icon: Users },
-            { href: "/admin/categories", label: "Categories", icon: Tags }
+            { href: "/admin/categories", label: "Categories", icon: Tags },
+            { href: "/admin/settings", label: "Settings", icon: Settings }
           ]
         }
       ]

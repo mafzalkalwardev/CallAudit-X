@@ -34,6 +34,9 @@ type AnalyticsCall = Call & {
 function buildAnalytics(calls: AnalyticsCall[]) {
   const analyzed = calls.filter((c) => c.report);
   const reports = analyzed.map((c) => c.report!);
+  const completedCalls = calls.filter((c) => c.status === "completed" || c.status === "analyzed").length;
+  const failedCalls = calls.filter((c) => c.status === "failed").length;
+  const processingCalls = calls.filter((c) => ["queued", "transcribing", "analyzing", "uploaded"].includes(c.status)).length;
   const categoryMap = new Map<string, { name: string; color: string; count: number; scoreTotal: number }>();
   const sentimentMap = new Map<string, number>();
   const dailyMap = new Map<string, number>();
@@ -52,6 +55,7 @@ function buildAnalytics(calls: AnalyticsCall[]) {
 
   const verified = calls.filter((c) => c.verification && c.verification.status !== "pending");
   const correct = verified.filter((c) => c.verification?.status === "correct");
+  const incorrect = verified.filter((c) => c.verification?.status === "incorrect");
   const categoryDistribution = [...categoryMap.values()].map((item) => ({
     name: item.name,
     value: item.count,
@@ -63,15 +67,27 @@ function buildAnalytics(calls: AnalyticsCall[]) {
   return {
     totalCalls: calls.length,
     analyzedCalls: analyzed.length,
+    completedCalls,
+    failedCalls,
+    processingCalls,
     averageAgentScore: average(reports.map((r) => r.agentScore)),
     averageLeadQuality: average(reports.map((r) => r.leadQualityScore)),
+    averageCallQuality: average(reports.map((r) => r.callQualityScore)),
     averageConfidence: average(reports.map((r) => r.confidenceScore)),
-    aiAccuracy: verified.length ? Math.round((correct.length / verified.length) * 100) : 100,
+    aiAccuracy: verified.length ? Math.round((correct.length / verified.length) * 100) : 0,
+    verifiedCorrect: correct.length,
+    verifiedIncorrect: incorrect.length,
+    pendingVerification: calls.filter((c) => !c.verification || c.verification.status === "pending").length,
     positiveCount: reports.filter((r) => r.sentiment === "Positive").length,
     negativeCount: reports.filter((r) => r.sentiment === "Negative").length,
     mostCommonCategory: categoryDistribution.sort((a, b) => b.value - a.value)[0]?.name || "No data",
     categoryDistribution,
     sentimentDistribution: [...sentimentMap.entries()].map(([name, value]) => ({ name, value })),
+    verificationDistribution: [
+      { name: "Correct", value: correct.length },
+      { name: "Incorrect", value: incorrect.length },
+      { name: "Pending", value: calls.filter((c) => !c.verification || c.verification.status === "pending").length }
+    ],
     callsOverTime: [...dailyMap.entries()].sort().map(([date, calls]) => ({ date, calls })),
     recentCalls: calls.slice(0, 6)
   };

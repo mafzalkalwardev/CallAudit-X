@@ -1,48 +1,25 @@
 import Link from "next/link";
-import { BarChart3, CheckCircle2, Gauge, PhoneCall, TrendingDown } from "lucide-react";
+import { Activity, BarChart3, CheckCircle2, Gauge, PhoneCall, TrendingDown, XCircle } from "lucide-react";
 import { ChartCard, CategoryPie, TimeLine } from "@/components/Charts";
 import { Badge, LinkButton, PageHeader, StatCard } from "@/components/ui";
 import { customerAnalytics } from "@/lib/analytics";
 import { getSession } from "@/lib/auth";
+import { getOrCreateDemoCustomer } from "@/lib/demo-user";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const session = await getSession();
-  const data = session
-    ? await customerAnalytics(session.id)
-    : {
-        totalCalls: 1284,
-        analyzedCalls: 1196,
-        averageAgentScore: 88,
-        positiveCount: 742,
-        negativeCount: 96,
-        mostCommonCategory: "Sales Lead",
-        categoryDistribution: [
-          { name: "Sales Lead", value: 42, color: "#22D3EE" },
-          { name: "Support", value: 26, color: "#2563EB" },
-          { name: "Complaint", value: 12, color: "#FB7185" },
-          { name: "Product Inquiry", value: 20, color: "#7C3AED" }
-        ],
-        callsOverTime: [
-          { date: "Mon", calls: 18 },
-          { date: "Tue", calls: 26 },
-          { date: "Wed", calls: 21 },
-          { date: "Thu", calls: 34 },
-          { date: "Fri", calls: 29 }
-        ],
-        recentCalls: [
-          { id: "demo-1", title: "Enterprise pricing inquiry", report: { category: { name: "Sales Lead" } }, verification: { status: "correct" } },
-          { id: "demo-2", title: "Support escalation follow-up", report: { category: { name: "Customer Support" } }, verification: { status: "pending" } },
-          { id: "demo-3", title: "Billing complaint review", report: { category: { name: "Complaint" } }, verification: { status: "incorrect" } }
-        ]
-      };
+  const demoUser = session ? null : await getOrCreateDemoCustomer();
+  const data = await customerAnalytics(session?.id || demoUser!.id);
   return (
     <>
       <PageHeader title="Customer Dashboard" subtitle="Operational view of call volume, AI quality, sentiment, and customer verification performance." action={<LinkButton href="/dashboard/upload">Upload calls</LinkButton>} />
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Total calls" value={data.totalCalls} icon={PhoneCall} detail={`${data.analyzedCalls} analyzed`} trend="+12.4% vs last period" />
-        <StatCard title="Average AI score" value={`${data.averageAgentScore}%`} icon={Gauge} detail="Agent performance" trend="+3.1 score lift" />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+        <StatCard title="Total calls" value={data.totalCalls} icon={PhoneCall} detail={`${data.completedCalls} completed`} />
+        <StatCard title="Processing" value={data.processingCalls} icon={Activity} detail="Queued, transcribing, or analyzing" />
+        <StatCard title="Failed calls" value={data.failedCalls} icon={XCircle} detail="Needs retry or review" />
+        <StatCard title="Average AI score" value={`${data.averageAgentScore}%`} icon={Gauge} detail={`${data.averageConfidence}% avg confidence`} />
         <StatCard title="Positive sentiment" value={data.positiveCount} icon={CheckCircle2} detail={`${data.negativeCount} negative`} />
         <StatCard title="Top category" value={data.mostCommonCategory} icon={TrendingDown} detail="Most frequent AI classification" />
       </div>

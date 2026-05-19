@@ -10,7 +10,8 @@ export function VerificationBox({ callId, categories, status }: { callId: string
   const [message, setMessage] = useState("");
 
   async function submit(formData: FormData) {
-    const response = await fetch(`/api/calls/${callId}/verify`, { method: "POST", body: formData });
+    const status = String(formData.get("status") || "correct");
+    const response = await fetch(status === "incorrect" ? `/api/calls/${callId}/correct` : `/api/calls/${callId}/verify`, { method: "POST", body: formData });
     if (!response.ok) {
       setMessage((await response.json()).error || "Unable to save verification");
       return;

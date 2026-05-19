@@ -1,46 +1,46 @@
 import { NextResponse } from "next/server";
-import { analyzeCall } from "@/lib/ai.service";
 import { getSession } from "@/lib/auth";
+import { getOrCreateDemoCustomer } from "@/lib/demo-user";
 import { prisma } from "@/lib/prisma";
 import { saveAudio } from "@/lib/storage";
 
 export async function POST(request: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
+    const session = await getSession();
+    const user = session ? { id: session.id } : await getOrCreateDemoCustomer();
     const formData = await request.formData();
-    const audio = formData.get("audio");
-    if (!(audio instanceof File)) return NextResponse.json({ error: "Audio file is required" }, { status: 400 });
-    const saved = await saveAudio(audio);
-    const title = String(formData.get("title") || saved.fileName);
-    const metadata = {
-      title,
-      agentName: String(formData.get("agentName") || ""),
-      campaignName: String(formData.get("campaignName") || ""),
-      callType: String(formData.get("callType") || ""),
-      notes: String(formData.get("notes") || "")
-    };
-    const call = await prisma.call.create({
-      data: {
-        userId: session.id,
-        title,
-        audioUrl: saved.url,
-        fileName: saved.fileName,
-        fileSize: saved.fileSize,
-        agentName: metadata.agentName,
-        campaignName: metadata.campaignName,
-        callType: metadata.callType,
-        notes: metadata.notes,
-        status: "analyzing"
-      }
-    });
-    const categories = await prisma.category.findMany();
-    const report = await analyzeCall(categories, metadata);
-    await prisma.aIReport.create({ data: { callId: call.id, ...report } });
-    await prisma.reviewVerification.create({ data: { callId: call.id, userId: session.id, status: "pending" } });
-    await prisma.call.update({ where: { id: call.id }, data: { status: "analyzed" } });
-    return NextResponse.json({ ok: true, callId: call.id });
+    const audioEntries = formData.getAll("audio").filter((entry): entry is File => entry instanceof File && entry.size > 0);
+
+    if (!audioEntries.length) {
+      return NextResponse.json({ error: "At least one audio file is required." }, { status: 400 });
+    }
+
+    const uploaded = [];
+    for (const audio of audioEntries) {
+      const saved = await saveAudio(audio);
+      const titleInput = String(formData.get("title") || "").trim();
+      const title = audioEntries.length === 1 && titleInput ? titleInput : saved.fileName;
+
+      const call = await prisma.call.create({
+        data: {
+          userId: user.id,
+          title,
+          audioUrl: saved.url,
+          fileName: saved.fileName,
+          fileSize: saved.fileSize,
+          agentName: String(formData.get("agentName") || "").trim() || null,
+          campaignName: String(formData.get("campaignName") || "").trim() || null,
+          callType: String(formData.get("callType") || "").trim() || null,
+          notes: String(formData.get("notes") || "").trim() || null,
+          status: "queued"
+        }
+      });
+
+      uploaded.push({ callId: call.id, id: call.id, fileName: call.fileName, audioUrl: call.audioUrl, status: call.status });
+    }
+
+    return NextResponse.json({ ok: true, callIds: uploaded.map((item) => item.callId), calls: uploaded });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Upload failed" }, { status: 400 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Upload failed." }, { status: 400 });
   }
 }
