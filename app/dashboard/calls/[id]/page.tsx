@@ -81,7 +81,7 @@ export default async function CallDetailPage({ params }: { params: { id: string 
           <div>
             <h3 className="font-extrabold text-[#92400E]">No live conversation detected</h3>
             <p className="mt-1 text-sm text-[#B45309] font-semibold leading-relaxed">
-              Our B2B AI pipeline analyzed this audio and classified it as an automated voicemail beep, machine response, dialer tone, or disconnectedwrong number event. Performance scoring has been bypassed for this record.
+              Our B2B AI pipeline analyzed this audio and classified it as an automated voicemail beep, machine response, dialer tone, or disconnected or wrong number event. Performance scoring has been bypassed for this record.
             </p>
           </div>
         </div>
