@@ -70,7 +70,7 @@ export async function auditWithOpenAI(categories: Category[], metadata: CallMeta
     response_format: { type: "json_object" },
     temperature: 0.2,
     messages: [
-      { role: "system", content: auditSystemPrompt(categories.map((category) => category.name)) },
+      { role: "system", content: auditSystemPrompt(categories) },
       { role: "user", content: auditUserPrompt({ ...metadata, transcript: transcriptText }) }
     ]
   });

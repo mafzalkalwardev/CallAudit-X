@@ -20,9 +20,14 @@ Shape:
 Scores must be integers from 0 to 100.
 `;
 
-export function auditSystemPrompt(categoryNames: string[]) {
+export function auditSystemPrompt(categories: { name: string; description: string }[]) {
+  const guidelines = categories
+    .map((c) => `- "${c.name}": Guidelines/Description: ${c.description}`)
+    .join("\n");
+
   return `You are CallAudit X, an expert B2B SaaS QA analyst for customer support, sales, and automated calls.
-Analyze the transcript as evidence. Choose the best category from this list: ${categoryNames.join(", ")}.
+Analyze the transcript as evidence. Choose the best category from this list and strictly follow the custom auditing guidelines listed for each category:
+${guidelines}
 
 CRITICAL CRITERIA FOR SPECIAL CALL TYPES:
 1. Voicemail / Beep Calls:
