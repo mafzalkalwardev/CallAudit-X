@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { FileAudio, Loader2, Check, AlertCircle, X, Trash2 } from "lucide-react";
-import { Card, Badge, Button } from "@/components/ui";
+import { FileAudio, Loader2, Check, AlertCircle, Trash2 } from "lucide-react";
+import { Card, Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 export type UploadItemStatus = "pending" | "uploading" | "processing" | "completed" | "failed";
@@ -22,17 +21,25 @@ interface UploadQueueProps {
   onRemove?: (id: string) => void;
 }
 
+interface StatusConfigItem {
+  icon: any;
+  color: string;
+  bgColor: string;
+  label: string;
+  animate?: boolean;
+}
+
 export function UploadQueue({ items, onRetry, onRemove }: UploadQueueProps) {
   if (items.length === 0) {
     return null;
   }
 
-  const statusConfig = {
-    pending: { icon: FileAudio, color: "text-muted", bgColor: "bg-slate-800/30", label: "Pending" },
-    uploading: { icon: Loader2, color: "text-primary", bgColor: "bg-primary/10", label: "Uploading", animate: true },
-    processing: { icon: Loader2, color: "text-secondary", bgColor: "bg-secondary/10", label: "Processing", animate: true },
-    completed: { icon: Check, color: "text-success", bgColor: "bg-success/10", label: "Completed" },
-    failed: { icon: AlertCircle, color: "text-danger", bgColor: "bg-danger/10", label: "Failed" }
+  const statusConfig: Record<UploadItemStatus, StatusConfigItem> = {
+    pending: { icon: FileAudio, color: "text-[#64748B]", bgColor: "bg-[#EFF6FF]", label: "Pending" },
+    uploading: { icon: Loader2, color: "text-[#2563EB]", bgColor: "bg-[#EFF6FF]", label: "Uploading", animate: true },
+    processing: { icon: Loader2, color: "text-[#0EA5E9]", bgColor: "bg-[#F0F9FF]", label: "Processing", animate: true },
+    completed: { icon: Check, color: "text-[#15803D]", bgColor: "bg-[#F0FDF4]", label: "Completed" },
+    failed: { icon: AlertCircle, color: "text-[#DC2626]", bgColor: "bg-[#FEF2F2]", label: "Failed" }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -43,14 +50,14 @@ export function UploadQueue({ items, onRetry, onRemove }: UploadQueueProps) {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-semibold text-slate-100">Upload Queue ({items.length})</p>
+      <p className="text-sm font-semibold text-[#0F172A]">Upload Queue ({items.length})</p>
       <div className="space-y-2 max-h-96 overflow-y-auto">
         {items.map((item) => {
           const config = statusConfig[item.status];
           const StatusIcon = config.icon;
 
           return (
-            <Card key={item.id} className="p-4">
+            <Card key={item.id} className="p-4 bg-white border border-[#D8E1EE]">
               <div className="flex items-center justify-between gap-4">
                 {/* Status icon */}
                 <div className={cn("flex-shrink-0 rounded-lg p-2", config.bgColor)}>
@@ -59,15 +66,15 @@ export function UploadQueue({ items, onRetry, onRemove }: UploadQueueProps) {
 
                 {/* File info */}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-100">{item.fileName}</p>
+                  <p className="truncate text-sm font-semibold text-[#0F172A]">{item.fileName}</p>
                   <div className="mt-1 flex items-center justify-between">
-                    <p className="text-xs text-soft">{formatFileSize(item.fileSize)}</p>
+                    <p className="text-xs text-[#64748B]">{formatFileSize(item.fileSize)}</p>
                     {(item.status === "uploading" || item.status === "processing") && (
                       <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-24 rounded-full bg-slate-800/50">
-                          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${item.progress}%` }} />
+                        <div className="h-1.5 w-24 rounded-full bg-[#EFF6FF]">
+                          <div className="h-full rounded-full bg-[#2563EB] transition-all" style={{ width: `${item.progress}%` }} />
                         </div>
-                        <span className="text-xs text-muted">{item.progress}%</span>
+                        <span className="text-xs text-[#64748B]">{item.progress}%</span>
                       </div>
                     )}
                   </div>
@@ -82,20 +89,22 @@ export function UploadQueue({ items, onRetry, onRemove }: UploadQueueProps) {
                 <div className="flex gap-1 flex-shrink-0">
                   {item.status === "failed" && onRetry && (
                     <button
+                      type="button"
                       onClick={() => onRetry(item.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700/50 hover:bg-slate-800/30 transition"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#D8E1EE] hover:bg-[#F5F7FB] transition"
                       title="Retry upload"
                     >
-                      <Loader2 className="h-4 w-4 text-primary" />
+                      <Loader2 className="h-4 w-4 text-[#2563EB]" />
                     </button>
                   )}
                   {onRemove && (
                     <button
+                      type="button"
                       onClick={() => onRemove(item.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700/50 hover:bg-danger/10 transition"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#D8E1EE] hover:bg-[#FEF2F2] transition"
                       title="Remove from queue"
                     >
-                      <Trash2 className="h-4 w-4 text-danger" />
+                      <Trash2 className="h-4 w-4 text-[#DC2626]" />
                     </button>
                   )}
                 </div>
@@ -103,8 +112,8 @@ export function UploadQueue({ items, onRetry, onRemove }: UploadQueueProps) {
 
               {/* Error message */}
               {item.error && (
-                <div className="mt-3 rounded-lg border border-danger/20 bg-danger/5 p-2">
-                  <p className="text-xs text-danger">{item.error}</p>
+                <div className="mt-3 rounded-xl border border-[#DC2626]/20 bg-[#FEF2F2] p-2">
+                  <p className="text-xs font-medium text-[#DC2626]">{item.error}</p>
                 </div>
               )}
             </Card>

@@ -100,54 +100,54 @@ export function UploadDropzone() {
 
   return (
     <form action={uploadAndAnalyze} className="grid gap-5 xl:grid-cols-[1fr_400px]">
-      <Card className="relative flex min-h-[420px] flex-col items-center justify-center overflow-hidden border-dashed p-8 text-center">
-        <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-sky-300/45 to-transparent" />
-        <div className="mb-4 grid h-16 w-16 place-items-center rounded-xl border border-sky-300/20 bg-sky-300/10">
-          <UploadCloud className="h-8 w-8 text-sky-300" />
+      <Card className="relative flex min-h-[420px] flex-col items-center justify-center overflow-hidden border-dashed border-[#2563EB]/40 p-8 text-center bg-white">
+        <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-[#2563EB]/20 to-transparent" />
+        <div className="mb-4 grid h-16 w-16 place-items-center rounded-xl border border-[#2563EB]/20 bg-[#EFF6FF]">
+          <UploadCloud className="h-8 w-8 text-[#2563EB]" />
         </div>
-        <h2 className="text-xl font-semibold text-slate-50">Bulk audio intake</h2>
-        <p className="mt-2 max-w-md text-sm leading-6 text-slate-400">
+        <h2 className="text-xl font-bold text-[#0F172A]">Bulk audio intake</h2>
+        <p className="mt-2 max-w-md text-sm leading-6 text-[#64748B]">
           Upload mp3, wav, m4a, ogg, or webm files. Each recording is stored locally, queued, transcribed, audited, and linked to a review workspace.
         </p>
-        <label className="mt-7 block w-full max-w-lg cursor-pointer rounded-xl border border-white/10 bg-slate-950/70 p-5 transition hover:border-sky-300/50 hover:bg-slate-900/80">
+        <label className="mt-7 block w-full max-w-lg cursor-pointer rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-5 transition hover:border-[#2563EB] hover:bg-[#EFF6FF]">
           <input className="sr-only" name="audio" type="file" accept=".mp3,.wav,.m4a,.ogg,.webm,audio/*,video/webm" multiple onChange={(event) => selectFiles(event.target.files)} />
-          <span className="flex items-center justify-center gap-3 text-sm text-slate-300">
-            <FileAudio className="h-5 w-5 text-sky-300" />
+          <span className="flex items-center justify-center gap-3 text-sm font-semibold text-[#0F172A]">
+            <FileAudio className="h-5 w-5 text-[#2563EB]" />
             Choose audio files
           </span>
-          <span className="mt-2 block text-xs text-slate-500">Maximum 50MB per file</span>
+          <span className="mt-2 block text-xs text-[#94A3B8]">Maximum 50MB per file</span>
         </label>
 
         <div className="mt-7 w-full max-w-2xl space-y-3 text-left">
           {queue.map((item) => (
-            <div key={item.key} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+            <div key={item.key} className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-slate-100">{item.file.name}</p>
-                  <p className="mt-1 text-xs text-slate-500">{(item.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className="truncate font-semibold text-[#0F172A]">{item.file.name}</p>
+                  <p className="mt-1 text-xs text-[#64748B]">{(item.file.size / 1024 / 1024).toFixed(2)} MB</p>
                 </div>
-                <span className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-medium ${item.status === "completed" ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-100" : item.status === "failed" ? "border-rose-300/30 bg-rose-300/10 text-rose-100" : "border-sky-300/25 bg-sky-300/10 text-sky-100"}`}>
+                <span className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-semibold ${item.status === "completed" ? "border-[#16A34A]/25 bg-[#F0FDF4] text-[#15803D]" : item.status === "failed" ? "border-[#DC2626]/25 bg-[#FEF2F2] text-[#DC2626]" : "border-[#2563EB]/25 bg-[#EFF6FF] text-[#2563EB]"}`}>
                   {["uploading", "transcribing", "analyzing"].includes(item.status) ? <Loader2 className="h-3 w-3 animate-spin" /> : item.status === "failed" ? <XCircle className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
                   {statusLabel[item.status]}
                 </span>
               </div>
               {item.callId && item.status === "completed" ? (
-                <Link href={`/dashboard/calls/${item.callId}`} className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-cyan-200 hover:text-cyan-100">
+                <Link href={`/dashboard/calls/${item.callId}`} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#2563EB] hover:text-[#1D4ED8]">
                   Open Review
                   <ExternalLink className="h-3.5 w-3.5" />
                 </Link>
               ) : null}
-              {item.error ? <p className="mt-2 text-xs text-rose-300">{item.error}</p> : null}
+              {item.error ? <p className="mt-2 text-xs text-[#DC2626] font-medium">{item.error}</p> : null}
             </div>
           ))}
-          {!queue.length ? <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-center text-sm text-slate-500">No files selected yet.</p> : null}
+          {!queue.length ? <p className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4 text-center text-sm text-[#94A3B8]">No files selected yet.</p> : null}
         </div>
       </Card>
 
       <Card className="space-y-4">
         <div>
-          <h3 className="font-semibold text-slate-100">Call metadata</h3>
-          <p className="mt-1 text-sm text-slate-400">Metadata is applied to every file in this batch.</p>
+          <h3 className="font-bold text-[#0F172A]">Call metadata</h3>
+          <p className="mt-1 text-sm text-[#64748B]">Metadata is applied to every file in this batch.</p>
         </div>
         <input className="input" name="title" placeholder="Call title (single-file uploads)" />
         <input className="input" name="agentName" placeholder="Agent name" />
@@ -160,10 +160,10 @@ export function UploadDropzone() {
           <option>Voicemail</option>
         </select>
         <textarea className="input min-h-28" name="notes" placeholder="Notes" />
-        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3 text-xs text-slate-400">
+        <div className="rounded-lg border border-[#D8E1EE] bg-[#F5F7FB] p-3 text-xs text-[#64748B]">
           {queue.length} file{queue.length === 1 ? "" : "s"} selected, {(totalSize / 1024 / 1024).toFixed(2)} MB total
         </div>
-        {error ? <p className="rounded-lg border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">{error}</p> : null}
+        {error ? <p className="rounded-lg border border-[#DC2626]/20 bg-[#FEF2F2] p-3 text-sm text-[#DC2626] font-medium">{error}</p> : null}
         <Button className="w-full" disabled={busy || !queue.length}>
           {busy ? "Processing..." : "Upload and Analyze"}
         </Button>

@@ -14,7 +14,7 @@ export function average(values: number[]) {
 }
 
 export function scoreTone(score: number) {
-  if (score >= 80) return "text-emerald-300";
-  if (score >= 60) return "text-yellow-300";
-  return "text-rose-300";
+  if (score >= 80) return "text-[#15803D]";
+  if (score >= 60) return "text-[#B45309]";
+  return "text-[#DC2626]";
 }

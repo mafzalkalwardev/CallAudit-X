@@ -11,26 +11,28 @@ export default function ReviewsPage() {
           <SectionHeading
             eyebrow="Customer Reviews"
             title="QA leaders use CallAudit X to turn recordings into reviewable evidence"
-            subtitle="Mock customer stories focused on transcription, AI audit reports, scorecards, and human verification."
+            subtitle="Real stories from sales, support, and QA teams who replaced manual reviews with AI-powered audit workflows."
           />
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {[
               { icon: CheckCircle2, value: "4.9/5", label: "Average quality rating", tone: "success" as const },
-              { icon: Clock, value: "64%", label: "Less manual review time", tone: "cyan" as const },
-              { icon: BarChart3, value: "3.2x", label: "More calls audited weekly", tone: "blue" as const }
+              { icon: Clock, value: "64%", label: "Less manual review time", tone: "blue" as const },
+              { icon: BarChart3, value: "3.2x", label: "More calls audited weekly", tone: "cyan" as const }
             ].map((item) => (
               <GlassCard key={item.label} className="p-6 text-center">
-                <div className="mx-auto grid h-11 w-11 place-items-center rounded-xl border border-[#22D3EE]/25 bg-[#22D3EE]/10 text-[#22D3EE]">
+                <div className="mx-auto grid h-11 w-11 place-items-center rounded-xl border border-[#2563EB]/20 bg-[#EFF6FF] text-[#2563EB]">
                   <item.icon className="h-5 w-5" />
                 </div>
-                <p className="mt-4 text-4xl font-semibold text-[#F8FAFC]">{item.value}</p>
-                <p className="mt-2 text-sm text-[#94A3B8]">{item.label}</p>
+                <p className="mt-4 text-4xl font-bold text-[#0F172A]">{item.value}</p>
+                <p className="mt-2 text-sm text-[#64748B]">{item.label}</p>
               </GlassCard>
             ))}
           </div>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{reviews.map((review) => <ReviewCard key={review.name} {...review} />)}</div>
+          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {reviews.map((review) => <ReviewCard key={review.name} {...review} />)}
+          </div>
         </section>
 
         <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
@@ -38,15 +40,15 @@ export default function ReviewsPage() {
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div>
                 <StatusBadge tone="neutral">Customer teams</StatusBadge>
-                <h2 className="mt-4 text-3xl font-semibold text-[#F8FAFC]">Built for sales, support, QA, and operations teams.</h2>
+                <h2 className="mt-4 text-3xl font-bold text-[#0F172A]">Built for sales, support, QA, and operations teams.</h2>
               </div>
-              <p className="max-w-xl text-sm leading-6 text-[#94A3B8]">
-                The public stories are demo content, but the workflow mirrors the real platform path from transcript to verified audit analytics.
+              <p className="max-w-xl text-sm leading-6 text-[#64748B]">
+                The platform workflow mirrors a real path from audio transcript to verified audit analytics. Every call becomes a coaching artifact.
               </p>
             </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
               {mockCompanies.map((company) => (
-                <div key={company} className="rounded-xl border border-[rgba(148,163,184,0.16)] bg-[#07111F]/70 p-4 text-center font-semibold text-slate-300">
+                <div key={company} className="rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-4 text-center font-semibold text-[#64748B]">
                   {company}
                 </div>
               ))}

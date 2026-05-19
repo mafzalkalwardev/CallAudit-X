@@ -11,7 +11,7 @@ type ShellUser = {
 
 export function AppShell({ children, user, admin = false }: { children: React.ReactNode; user: ShellUser; admin?: boolean }) {
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[linear-gradient(180deg,rgba(15,23,42,0.20),transparent_220px)]">
+    <div className="min-h-screen bg-[#F5F7FB]">
       <div className="flex">
         <AppSidebar user={user} admin={admin} />
         <div className="min-w-0 flex-1">

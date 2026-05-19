@@ -53,20 +53,20 @@ type IconName = keyof typeof iconMap;
 type StatusTone = "blue" | "cyan" | "success" | "warning" | "danger" | "neutral";
 
 const toneStyles: Record<StatusTone, string> = {
-  blue: "border-[#3B82F6]/30 bg-[#3B82F6]/10 text-blue-100",
-  cyan: "border-[#22D3EE]/30 bg-[#22D3EE]/10 text-cyan-100",
-  success: "border-[#10B981]/30 bg-[#10B981]/10 text-emerald-100",
-  warning: "border-[#F59E0B]/35 bg-[#F59E0B]/10 text-amber-100",
-  danger: "border-[#F43F5E]/35 bg-[#F43F5E]/10 text-rose-100",
-  neutral: "border-[rgba(148,163,184,0.18)] bg-white/[0.03] text-slate-200"
+  blue: "border-[#2563EB]/25 bg-[#2563EB]/8 text-[#2563EB]",
+  cyan: "border-[#0EA5E9]/30 bg-[#0EA5E9]/10 text-[#0369A1]",
+  success: "border-[#16A34A]/25 bg-[#16A34A]/8 text-[#15803D]",
+  warning: "border-[#F59E0B]/30 bg-[#F59E0B]/10 text-[#B45309]",
+  danger: "border-[#DC2626]/25 bg-[#DC2626]/8 text-[#DC2626]",
+  neutral: "border-[#D8E1EE] bg-[#F5F7FB] text-[#64748B]"
 };
 
 const dotStyles: Record<StatusTone, string> = {
-  blue: "bg-[#3B82F6]",
-  cyan: "bg-[#22D3EE]",
-  success: "bg-[#10B981]",
+  blue: "bg-[#2563EB]",
+  cyan: "bg-[#0EA5E9]",
+  success: "bg-[#16A34A]",
   warning: "bg-[#F59E0B]",
-  danger: "bg-[#F43F5E]",
+  danger: "bg-[#DC2626]",
   neutral: "bg-[#94A3B8]"
 };
 
@@ -92,12 +92,12 @@ export function SectionHeading({
       className={cn(center ? "mx-auto max-w-3xl text-center" : "max-w-3xl", className)}
     >
       {eyebrow ? (
-        <div className={cn("mb-4 inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase", toneStyles.cyan)}>
+        <div className={cn("mb-4 inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wider", toneStyles.blue)}>
           {eyebrow}
         </div>
       ) : null}
-      <h2 className="text-3xl font-semibold text-[#F8FAFC] md:text-5xl">{title}</h2>
-      {subtitle ? <p className="mt-4 text-base leading-8 text-[#94A3B8] md:text-lg">{subtitle}</p> : null}
+      <h2 className="text-3xl font-bold text-[#0F172A] md:text-4xl leading-tight">{title}</h2>
+      {subtitle ? <p className="mt-4 text-base leading-7 text-[#64748B] md:text-lg">{subtitle}</p> : null}
     </motion.div>
   );
 }
@@ -114,12 +114,12 @@ export function GlassCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-[rgba(148,163,184,0.16)] bg-[#0B1220]/88 shadow-[0_24px_90px_rgba(0,0,0,0.35)] backdrop-blur-xl",
-        glow ? "shadow-[0_24px_90px_rgba(34,211,238,0.12)]" : null,
+        "relative overflow-hidden rounded-2xl border border-[#D8E1EE] bg-white shadow-sm",
+        glow ? "shadow-[0_4px_24px_rgba(37,99,235,0.10)]" : null,
         className
       )}
     >
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#22D3EE]/50 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#2563EB]/20 to-transparent" />
       {children}
     </div>
   );
@@ -156,17 +156,17 @@ export function StatCard({
   tone?: StatusTone;
 }) {
   return (
-    <div className="rounded-xl border border-[rgba(148,163,184,0.16)] bg-[#07111F]/85 p-4">
+    <div className="rounded-xl border border-[#D8E1EE] bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase text-[#94A3B8]">{label}</p>
-          <p className="mt-2 text-2xl font-semibold text-[#F8FAFC]">{value}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">{label}</p>
+          <p className="mt-2 text-2xl font-bold text-[#0F172A]">{value}</p>
         </div>
         <div className={cn("grid h-10 w-10 place-items-center rounded-lg border", toneStyles[tone])}>
           <Icon className="h-4 w-4" />
         </div>
       </div>
-      {detail ? <p className="mt-3 text-sm leading-6 text-[#94A3B8]">{detail}</p> : null}
+      {detail ? <p className="mt-3 text-sm leading-6 text-[#64748B]">{detail}</p> : null}
     </div>
   );
 }
@@ -174,13 +174,13 @@ export function StatCard({
 export function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
   const Icon = iconMap[icon as IconName] || Sparkles;
   return (
-    <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -6 }} transition={{ duration: 0.25 }}>
+    <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -4 }} transition={{ duration: 0.25 }}>
       <GlassCard className="h-full p-6">
-        <div className="grid h-11 w-11 place-items-center rounded-xl border border-[#22D3EE]/20 bg-[#22D3EE]/10 text-[#22D3EE]">
+        <div className="grid h-11 w-11 place-items-center rounded-xl border border-[#2563EB]/20 bg-[#EFF6FF] text-[#2563EB]">
           <Icon className="h-5 w-5" />
         </div>
-        <h3 className="mt-5 text-lg font-semibold text-[#F8FAFC]">{title}</h3>
-        <p className="mt-3 text-sm leading-6 text-[#94A3B8]">{description}</p>
+        <h3 className="mt-5 text-lg font-semibold text-[#0F172A]">{title}</h3>
+        <p className="mt-3 text-sm leading-6 text-[#64748B]">{description}</p>
       </GlassCard>
     </motion.div>
   );
@@ -189,16 +189,16 @@ export function FeatureCard({ icon, title, description }: { icon: string; title:
 export function ServiceCard({ icon, title, description }: { icon: string; title: string; description: string }) {
   const Icon = iconMap[icon as IconName] || Sparkles;
   return (
-    <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -6 }} transition={{ duration: 0.25 }}>
+    <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -4 }} transition={{ duration: 0.25 }}>
       <GlassCard className="h-full p-6" glow>
         <div className="flex items-start justify-between gap-4">
-          <div className="grid h-12 w-12 place-items-center rounded-xl border border-[#3B82F6]/25 bg-[#3B82F6]/10 text-[#3B82F6]">
+          <div className="grid h-12 w-12 place-items-center rounded-xl border border-[#2563EB]/20 bg-[#EFF6FF] text-[#2563EB]">
             <Icon className="h-5 w-5" />
           </div>
           <StatusBadge tone="cyan">AI ready</StatusBadge>
         </div>
-        <h3 className="mt-6 text-xl font-semibold text-[#F8FAFC]">{title}</h3>
-        <p className="mt-3 text-sm leading-6 text-[#94A3B8]">{description}</p>
+        <h3 className="mt-6 text-xl font-semibold text-[#0F172A]">{title}</h3>
+        <p className="mt-3 text-sm leading-6 text-[#64748B]">{description}</p>
       </GlassCard>
     </motion.div>
   );
@@ -206,27 +206,27 @@ export function ServiceCard({ icon, title, description }: { icon: string; title:
 
 export function AITranscriptPreview({ compact = false }: { compact?: boolean }) {
   const rows = [
-    { time: "00:04", speaker: "Agent", tone: "cyan" as StatusTone, text: "Thanks for calling Horizon Support. I see you uploaded three call batches today." },
-    { time: "00:18", speaker: "Customer", tone: "blue" as StatusTone, text: "We need to know which conversations need manager review before tomorrow morning." },
-    { time: "00:42", speaker: "Agent", tone: "cyan" as StatusTone, text: "I can prioritize complaints, low confidence scores, and calls where the outcome is unclear." },
+    { time: "00:04", speaker: "Agent", tone: "blue" as StatusTone, text: "Thanks for calling Horizon Support. I see you uploaded three call batches today." },
+    { time: "00:18", speaker: "Customer", tone: "cyan" as StatusTone, text: "We need to know which conversations need manager review before tomorrow morning." },
+    { time: "00:42", speaker: "Agent", tone: "blue" as StatusTone, text: "I can prioritize complaints, low confidence scores, and calls where the outcome is unclear." },
     { time: "01:09", speaker: "Customer", tone: "warning" as StatusTone, text: "One customer sounded frustrated about billing, so flag that as a complaint." }
   ];
 
   return (
     <GlassCard className={cn("p-5", compact ? "p-4" : "p-5")}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(148,163,184,0.16)] pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#D8E1EE] pb-4">
         <div>
-          <p className="text-sm font-semibold text-[#F8FAFC]">AI transcript</p>
-          <p className="mt-1 text-xs text-[#94A3B8]">Timestamped speaker turns with audit cues</p>
+          <p className="text-sm font-semibold text-[#0F172A]">AI transcript</p>
+          <p className="mt-1 text-xs text-[#64748B]">Timestamped speaker turns with audit cues</p>
         </div>
         <StatusBadge tone="success">Transcription complete</StatusBadge>
       </div>
       <div className={cn("mt-4 space-y-3", compact ? "text-xs" : "text-sm")}>
         {rows.map((row) => (
-          <div key={`${row.time}-${row.speaker}`} className="grid grid-cols-[58px_92px_1fr] gap-3 rounded-xl border border-[rgba(148,163,184,0.14)] bg-[#07111F]/70 p-3 max-sm:grid-cols-1">
+          <div key={`${row.time}-${row.speaker}`} className="grid grid-cols-[58px_92px_1fr] gap-3 rounded-xl border border-[#EEF3F9] bg-[#F5F7FB] p-3 max-sm:grid-cols-1">
             <span className="font-mono text-xs text-[#94A3B8]">{row.time}</span>
             <span className={cn("w-fit rounded-full border px-2 py-0.5 text-xs font-semibold", toneStyles[row.tone])}>{row.speaker}</span>
-            <p className="leading-6 text-slate-200">{row.text}</p>
+            <p className="leading-6 text-[#334155]">{row.text}</p>
           </div>
         ))}
       </div>
@@ -245,15 +245,15 @@ export function HeroDashboardPreview() {
   return (
     <motion.div initial={{ opacity: 0, y: 22, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.7 }}>
       <GlassCard className="p-4 md:p-5" glow>
-        <div className="overflow-hidden rounded-xl border border-[rgba(148,163,184,0.16)] bg-[#030712]">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[rgba(148,163,184,0.16)] bg-[#07111F]/86 px-4 py-3">
+        <div className="overflow-hidden rounded-xl border border-[#D8E1EE] bg-[#F5F7FB]">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#D8E1EE] bg-white px-4 py-3">
             <div className="flex items-center gap-3">
               <div className="flex gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#F43F5E]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#DC2626]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#10B981]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#16A34A]" />
               </div>
-              <p className="text-sm font-semibold text-[#F8FAFC]">CallAudit X command center</p>
+              <p className="text-sm font-semibold text-[#0F172A]">CallAudit X command center</p>
             </div>
             <StatusBadge tone="success">Live processing</StatusBadge>
           </div>
@@ -265,32 +265,32 @@ export function HeroDashboardPreview() {
                 <StatCard label="AI confidence" value="88%" detail="Human check queued" icon={Bot} tone="cyan" />
               </div>
 
-              <div className="rounded-xl border border-[rgba(148,163,184,0.16)] bg-[#07111F]/72 p-4">
+              <div className="rounded-xl border border-[#D8E1EE] bg-white p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-[#F8FAFC]">Audit volume</p>
-                    <p className="mt-1 text-xs text-[#94A3B8]">Calls processed today</p>
+                    <p className="text-sm font-semibold text-[#0F172A]">Audit volume</p>
+                    <p className="mt-1 text-xs text-[#64748B]">Calls processed today</p>
                   </div>
-                  <span className="text-2xl font-semibold text-[#22D3EE]">428</span>
+                  <span className="text-2xl font-bold text-[#2563EB]">428</span>
                 </div>
-                <div className="mt-5 flex h-24 items-end gap-2">
+                <div className="mt-5 flex h-20 items-end gap-1.5">
                   {bars.map((height, index) => (
-                    <span key={index} className="w-full rounded-t bg-gradient-to-t from-[#3B82F6] to-[#22D3EE]" style={{ height: `${height}%` }} />
+                    <span key={index} className="w-full rounded-t bg-gradient-to-t from-[#2563EB] to-[#0EA5E9]" style={{ height: `${height}%` }} />
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[rgba(148,163,184,0.16)] bg-[#07111F]/72 p-4">
+              <div className="rounded-xl border border-[#D8E1EE] bg-white p-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-[#F8FAFC]">Processing queue</p>
+                  <p className="text-sm font-semibold text-[#0F172A]">Processing queue</p>
                   <StatusBadge tone="warning">3 flagged</StatusBadge>
                 </div>
                 <div className="mt-4 space-y-3">
                   {queue.map(([file, category, confidence]) => (
-                    <div key={file} className="flex items-center justify-between gap-3 rounded-lg bg-white/[0.03] px-3 py-2 text-xs">
-                      <span className="min-w-0 truncate text-slate-300">{file}</span>
-                      <span className="shrink-0 text-[#94A3B8]">{category}</span>
-                      <span className="shrink-0 font-semibold text-[#22D3EE]">{confidence}</span>
+                    <div key={file} className="flex items-center justify-between gap-3 rounded-lg bg-[#F5F7FB] px-3 py-2 text-xs">
+                      <span className="min-w-0 truncate text-[#334155]">{file}</span>
+                      <span className="shrink-0 text-[#64748B]">{category}</span>
+                      <span className="shrink-0 font-semibold text-[#2563EB]">{confidence}</span>
                     </div>
                   ))}
                 </div>
@@ -300,17 +300,17 @@ export function HeroDashboardPreview() {
             <div className="space-y-4">
               <AITranscriptPreview compact />
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-xl border border-[#10B981]/25 bg-[#10B981]/10 p-3">
-                  <p className="text-xs font-semibold text-emerald-100">Verified</p>
-                  <p className="mt-2 text-2xl font-semibold text-[#F8FAFC]">327</p>
+                <div className="rounded-xl border border-[#16A34A]/25 bg-[#F0FDF4] p-3">
+                  <p className="text-xs font-semibold text-[#15803D]">Verified</p>
+                  <p className="mt-2 text-2xl font-bold text-[#0F172A]">327</p>
                 </div>
-                <div className="rounded-xl border border-[#F59E0B]/30 bg-[#F59E0B]/10 p-3">
-                  <p className="text-xs font-semibold text-amber-100">Needs review</p>
-                  <p className="mt-2 text-2xl font-semibold text-[#F8FAFC]">41</p>
+                <div className="rounded-xl border border-[#F59E0B]/30 bg-[#FFFBEB] p-3">
+                  <p className="text-xs font-semibold text-[#B45309]">Needs review</p>
+                  <p className="mt-2 text-2xl font-bold text-[#0F172A]">41</p>
                 </div>
-                <div className="rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3">
-                  <p className="text-xs font-semibold text-rose-100">Complaints</p>
-                  <p className="mt-2 text-2xl font-semibold text-[#F8FAFC]">18</p>
+                <div className="rounded-xl border border-[#DC2626]/25 bg-[#FEF2F2] p-3">
+                  <p className="text-xs font-semibold text-[#DC2626]">Complaints</p>
+                  <p className="mt-2 text-2xl font-bold text-[#0F172A]">18</p>
                 </div>
               </div>
             </div>
@@ -328,16 +328,16 @@ export function ProcessingPipeline({ stages }: { stages: { label: string; title:
       {stages.map((stage, index) => {
         const Icon = stageIcons[index] || Activity;
         return (
-          <motion.div key={stage.title} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -5 }} transition={{ duration: 0.25 }}>
+          <motion.div key={stage.title} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -4 }} transition={{ duration: 0.25 }}>
             <GlassCard className="h-full p-6">
               <div className="flex items-center justify-between">
-                <div className="grid h-11 w-11 place-items-center rounded-xl border border-[#22D3EE]/25 bg-[#22D3EE]/10 text-[#22D3EE]">
+                <div className="grid h-11 w-11 place-items-center rounded-xl border border-[#2563EB]/20 bg-[#EFF6FF] text-[#2563EB]">
                   <Icon className="h-5 w-5" />
                 </div>
-                <span className="text-sm font-semibold text-[#3B82F6]">{stage.label}</span>
+                <span className="text-sm font-bold text-[#2563EB]">{stage.label}</span>
               </div>
-              <h3 className="mt-6 text-lg font-semibold text-[#F8FAFC]">{stage.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-[#94A3B8]">{stage.description}</p>
+              <h3 className="mt-6 text-lg font-semibold text-[#0F172A]">{stage.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-[#64748B]">{stage.description}</p>
             </GlassCard>
           </motion.div>
         );
@@ -354,23 +354,26 @@ export function PricingCard({
   highlighted?: boolean;
 }) {
   return (
-    <motion.div whileHover={{ y: -7 }} transition={{ duration: 0.25 }} className="h-full">
-      <GlassCard className={cn("flex h-full flex-col p-6", highlighted ? "border-[#22D3EE]/45 bg-[#0B1220]" : null)} glow={highlighted}>
+    <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.25 }} className="h-full">
+      <GlassCard
+        className={cn("flex h-full flex-col p-6", highlighted ? "border-[#2563EB] ring-2 ring-[#2563EB]/20" : null)}
+        glow={highlighted}
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-2xl font-semibold text-[#F8FAFC]">{plan.name}</h3>
-            <p className="mt-3 text-sm leading-6 text-[#94A3B8]">{plan.description}</p>
+            <h3 className="text-2xl font-bold text-[#0F172A]">{plan.name}</h3>
+            <p className="mt-3 text-sm leading-6 text-[#64748B]">{plan.description}</p>
           </div>
-          {highlighted ? <StatusBadge tone="cyan">Popular</StatusBadge> : null}
+          {highlighted ? <StatusBadge tone="blue">Popular</StatusBadge> : null}
         </div>
-        <p className="mt-7 text-4xl font-semibold text-[#F8FAFC]">
+        <p className="mt-7 text-4xl font-bold text-[#0F172A]">
           {plan.price}
-          <span className="text-sm font-normal text-[#94A3B8]">/month</span>
+          <span className="text-sm font-normal text-[#64748B]">/month</span>
         </p>
-        <ul className="my-7 space-y-3 text-sm text-slate-300">
+        <ul className="my-7 space-y-3 text-sm text-[#334155]">
           {plan.features.map((feature) => (
             <li key={feature} className="flex gap-2">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#10B981]" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#16A34A]" />
               <span>{feature}</span>
             </li>
           ))}
@@ -380,8 +383,8 @@ export function PricingCard({
           className={cn(
             "mt-auto inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition",
             highlighted
-              ? "bg-[#22D3EE] text-[#030712] shadow-[0_16px_40px_rgba(34,211,238,0.18)] hover:bg-cyan-200"
-              : "border border-[rgba(148,163,184,0.18)] bg-white/[0.03] text-[#F8FAFC] hover:border-[#22D3EE]/35 hover:bg-[#22D3EE]/10"
+              ? "bg-[#2563EB] text-white shadow-[0_4px_16px_rgba(37,99,235,0.28)] hover:bg-[#1D4ED8]"
+              : "border border-[#D8E1EE] bg-[#F5F7FB] text-[#0F172A] hover:border-[#2563EB]/40 hover:bg-[#EFF6FF] hover:text-[#2563EB]"
           )}
         >
           Start with {plan.name}
@@ -393,20 +396,29 @@ export function PricingCard({
 }
 
 export function ReviewCard({ quote, name, role, company }: { quote: string; name: string; role: string; company: string }) {
+  const initials = name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+  const colors = ["bg-[#EFF6FF] text-[#2563EB]", "bg-[#F0FDF4] text-[#15803D]", "bg-[#FFF7ED] text-[#C2410C]", "bg-[#F5F3FF] text-[#7C3AED]", "bg-[#FEF9EC] text-[#B45309]", "bg-[#F0FAFA] text-[#0F766E]"];
+  const colorIdx = name.charCodeAt(0) % colors.length;
+
   return (
-    <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -5 }} transition={{ duration: 0.25 }}>
+    <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -4 }} transition={{ duration: 0.25 }}>
       <GlassCard className="h-full p-6">
         <div className="flex gap-1 text-[#F59E0B]">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star key={i} className="h-4 w-4 fill-current" />
           ))}
         </div>
-        <p className="mt-5 text-sm leading-7 text-slate-200">"{quote}"</p>
-        <div className="mt-6 border-t border-[rgba(148,163,184,0.16)] pt-4">
-          <p className="font-semibold text-[#F8FAFC]">{name}</p>
-          <p className="mt-1 text-sm text-[#94A3B8]">
-            {role}, {company}
-          </p>
+        <p className="mt-5 text-sm leading-7 text-[#334155]">&ldquo;{quote}&rdquo;</p>
+        <div className="mt-6 flex items-center gap-3 border-t border-[#EEF3F9] pt-4">
+          <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold", colors[colorIdx])}>
+            {initials}
+          </div>
+          <div>
+            <p className="font-semibold text-[#0F172A]">{name}</p>
+            <p className="mt-0.5 text-xs text-[#64748B]">
+              {role}, {company}
+            </p>
+          </div>
         </div>
       </GlassCard>
     </motion.div>

@@ -42,8 +42,13 @@ export default async function CallsPage({ searchParams }: { searchParams: Record
 
   return (
     <>
-      <PageHeader title="Calls" subtitle="Filter, inspect, and verify uploaded recordings from the database." action={<LinkButton href="/dashboard/upload">Upload calls</LinkButton>} />
-      <form className="mb-4 grid gap-3 rounded-lg border border-white/10 bg-white/5 p-4 md:grid-cols-2 xl:grid-cols-8">
+      <PageHeader
+        title="Call Library"
+        subtitle="Filter, inspect, and verify uploaded recordings from the database."
+        action={<LinkButton href="/dashboard/upload">Upload calls</LinkButton>}
+      />
+
+      <form className="mb-6 grid gap-3 rounded-2xl border border-[#D8E1EE] bg-white p-4 md:grid-cols-2 lg:grid-cols-8">
         <select className="input" name="category" defaultValue={searchParams.category || ""}>
           <option value="">All categories</option>
           {categories.map((category) => <option key={category.id}>{category.name}</option>)}
@@ -72,49 +77,80 @@ export default async function CallsPage({ searchParams }: { searchParams: Record
           <option value="incorrect">Corrected</option>
         </select>
         <div className="flex gap-2">
-          <button className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-cyan-300 px-4 py-2 font-medium text-slate-950">
+          <button className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2 text-sm font-bold text-white hover:bg-[#1D4ED8] transition shadow-sm">
             <Search className="h-4 w-4" />Apply
           </button>
-          <Link href="/dashboard/calls" className="inline-flex items-center justify-center rounded-md border border-white/10 px-3 hover:bg-white/10" aria-label="Clear filters">
-            <X className="h-4 w-4" />
+          <Link href="/dashboard/calls" className="inline-flex items-center justify-center rounded-xl border border-[#D8E1EE] px-3 hover:bg-[#F5F7FB] transition" aria-label="Clear filters">
+            <X className="h-4 w-4 text-[#64748B]" />
           </Link>
         </div>
       </form>
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-950/35">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-          <p className="text-sm font-medium text-slate-200">{calls.length} calls</p>
-          <p className="text-xs text-slate-500">Sorted by newest upload</p>
+
+      <div className="overflow-hidden rounded-2xl border border-[#D8E1EE] bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-[#EEF3F9] px-4 py-3">
+          <p className="text-sm font-semibold text-[#0F172A]">{calls.length} calls found</p>
+          <p className="text-xs text-[#64748B]">Sorted by newest upload</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-white/[0.025] text-left text-xs uppercase tracking-[0.14em] text-slate-500">
-              <tr><th className="p-4">Call</th><th className="p-4">Category</th><th className="p-4">Sentiment</th><th className="p-4">Score</th><th className="p-4">Confidence</th><th className="p-4">Processing</th><th className="p-4">Verification</th><th className="p-4">Date</th><th className="p-4"></th></tr>
+            <thead className="bg-[#F5F7FB] text-left text-xs uppercase tracking-[0.14em] text-[#64748B]">
+              <tr>
+                <th className="p-4">Call</th>
+                <th className="p-4">Category</th>
+                <th className="p-4">Sentiment</th>
+                <th className="p-4">Score</th>
+                <th className="p-4">Confidence</th>
+                <th className="p-4">Processing</th>
+                <th className="p-4">Verification</th>
+                <th className="p-4">Date</th>
+                <th className="p-4"></th>
+              </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-[#EEF3F9]">
               {calls.map((call) => (
-                <tr key={call.id} className="border-t border-white/5 transition hover:bg-white/[0.035]">
-                  <td className="p-4 font-medium text-slate-200">
-                    {call.title || call.fileName}
-                    <p className="mt-1 text-xs font-normal text-slate-500">{call.fileName} - {call.agentName || "Unknown agent"} - {call.campaignName || "No campaign"}</p>
+                <tr key={call.id} className="transition hover:bg-[#F5F7FB]">
+                  <td className="p-4">
+                    <p className="font-semibold text-[#0F172A]">{call.title || call.fileName}</p>
+                    <p className="mt-1 text-xs text-[#64748B]">
+                      {call.fileName} • {call.agentName || "Unknown agent"} • {call.campaignName || "No campaign"}
+                    </p>
                   </td>
-                  <td className="p-4 text-slate-400">{call.report?.category.name || "Pending"}</td>
-                  <td className="p-4 text-slate-400">{call.report?.sentiment || "-"}</td>
-                  <td className="p-4 text-slate-300">{call.report?.agentScore ?? "-"}</td>
-                  <td className="p-4 text-slate-300">{call.report ? `${call.report.confidenceScore}%` : "-"}</td>
-                  <td className="p-4"><Badge tone={statusTone(call.status)}>{call.status}</Badge></td>
-                  <td className="p-4"><Badge tone={call.verification?.status === "incorrect" ? "danger" : call.verification?.status === "correct" ? "success" : "warn"}>{call.verification?.status || "pending"}</Badge></td>
-                  <td className="p-4 text-slate-400">{call.createdAt.toLocaleDateString()}</td>
-                  <td className="pr-4 text-right"><Link className="text-cyan-200" href={`/dashboard/calls/${call.id}`}>Details</Link></td>
+                  <td className="p-4 text-[#64748B]">{call.report?.category.name || "Pending"}</td>
+                  <td className="p-4">
+                    {call.report ? (
+                      <Badge tone={call.report.sentiment === "Positive" ? "success" : call.report.sentiment === "Negative" ? "danger" : "warn"}>
+                        {call.report.sentiment}
+                      </Badge>
+                    ) : <span className="text-[#94A3B8]">—</span>}
+                  </td>
+                  <td className="p-4 font-bold text-[#2563EB]">{call.report?.agentScore ?? "—"}</td>
+                  <td className="p-4 text-[#334155]">{call.report ? `${call.report.confidenceScore}%` : "—"}</td>
+                  <td className="p-4">
+                    <Badge tone={statusTone(call.status)}>{call.status}</Badge>
+                  </td>
+                  <td className="p-4">
+                    <Badge tone={call.verification?.status === "incorrect" ? "danger" : call.verification?.status === "correct" ? "success" : "warn"}>
+                      {call.verification?.status || "pending"}
+                    </Badge>
+                  </td>
+                  <td className="p-4 text-xs text-[#64748B]">{new Date(call.createdAt).toLocaleDateString()}</td>
+                  <td className="pr-4 text-right">
+                    <Link className="font-semibold text-[#2563EB] hover:text-[#1D4ED8]" href={`/dashboard/calls/${call.id}`}>
+                      Details
+                    </Link>
+                  </td>
                 </tr>
               ))}
               {!calls.length ? (
                 <tr>
-                  <td colSpan={9} className="p-10 text-center">
+                  <td colSpan={9} className="p-12 text-center">
                     <div className="mx-auto max-w-md">
-                      <UploadCloud className="mx-auto h-10 w-10 text-slate-500" />
-                      <p className="mt-3 font-medium text-slate-200">No calls found</p>
-                      <p className="mt-2 text-sm text-slate-400">Upload audio to create your first transcript-backed AI audit report.</p>
-                      <LinkButton href="/dashboard/upload" className="mt-5">Upload calls</LinkButton>
+                      <UploadCloud className="mx-auto h-10 w-10 text-[#94A3B8] mb-3" />
+                      <p className="font-semibold text-[#0F172A]">No calls found</p>
+                      <p className="mt-1 text-sm text-[#64748B]">Upload audio recordings to start AI QA transcripts and scorecards.</p>
+                      <LinkButton href="/dashboard/upload" className="mt-5">
+                        Upload calls
+                      </LinkButton>
                     </div>
                   </td>
                 </tr>

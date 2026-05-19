@@ -11,14 +11,75 @@ interface TranscriptLine {
   text: string;
 }
 
+type TranscriptInput = TranscriptLine[] | string | null | undefined | Record<string, unknown>;
+
 interface TranscriptViewerProps {
-  lines: TranscriptLine[];
+  lines: TranscriptInput;
   keywords?: string[];
   highlightedKeywords?: string[];
   onKeywordClick?: (keyword: string) => void;
 }
 
-export function TranscriptViewer({ lines, keywords = [], highlightedKeywords = [], onKeywordClick }: TranscriptViewerProps) {
+/** Safely normalize whatever format the transcript data comes in as */
+function normalizeLines(input: TranscriptInput): TranscriptLine[] {
+  if (!input) return [];
+  if (typeof input === "string") {
+    // Parse "HH:MM:SS - Speaker: text" format
+    return input
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line, idx) => {
+        const match = line.match(/^(\d{1,2}:\d{2}(?::\d{2})?)\s*[-–]\s*(Agent|Customer|Speaker\s*\d*)?:?\s*(.+)/i);
+        if (match) {
+          const speaker = (match[2] || "Agent").trim();
+          return {
+            timestamp: match[1],
+            speaker: speaker.toLowerCase().startsWith("customer") ? ("Customer" as const) : ("Agent" as const),
+            text: match[3].trim()
+          };
+        }
+        return { timestamp: `00:${String(idx).padStart(2, "0")}`, speaker: "Agent" as const, text: line };
+      });
+  }
+  if (Array.isArray(input)) {
+    return input
+      .filter((item) => item && typeof item === "object")
+      .map((item: any) => ({
+        timestamp: String(item.timestamp || item.time || "00:00"),
+        speaker: String(item.speaker || "Agent").toLowerCase().startsWith("customer") ? ("Customer" as const) : ("Agent" as const),
+        text: String(item.text || item.content || "")
+      }));
+  }
+  return [];
+}
+
+/** Highlight keywords in text and return React nodes */
+function highlightSegments(text: string, keywords: string[], onKeywordClick?: (kw: string) => void): React.ReactNode[] {
+  if (!keywords.length) return [text];
+
+  const escapedKeywords = keywords.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const regex = new RegExp(`(${escapedKeywords.join("|")})`, "gi");
+  const parts = text.split(regex);
+
+  return parts.map((part, i) => {
+    if (keywords.some((k) => k.toLowerCase() === part.toLowerCase())) {
+      return (
+        <span
+          key={i}
+          className="bg-[#DBEAFE] font-semibold text-[#1D4ED8] cursor-pointer rounded px-0.5 hover:bg-[#BFDBFE]"
+          onClick={() => onKeywordClick?.(part)}
+        >
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
+}
+
+export function TranscriptViewer({ lines: rawLines, keywords = [], highlightedKeywords = [], onKeywordClick }: TranscriptViewerProps) {
+  const lines = useMemo(() => normalizeLines(rawLines), [rawLines]);
   const [searchQuery, setSearchQuery] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -28,20 +89,6 @@ export function TranscriptViewer({ lines, keywords = [], highlightedKeywords = [
     return lines.filter((line) => line.text.toLowerCase().includes(query) || line.speaker.toLowerCase().includes(query));
   }, [lines, searchQuery]);
 
-  const highlightText = (text: string) => {
-    if (!searchQuery && highlightedKeywords.length === 0) return text;
-
-    let highlighted = text;
-    const toHighlight = searchQuery ? [searchQuery] : highlightedKeywords;
-
-    toHighlight.forEach((keyword) => {
-      const regex = new RegExp(`(${keyword})`, "gi");
-      highlighted = highlighted.replace(regex, '<mark className="bg-primary/30 font-semibold">$1</mark>');
-    });
-
-    return highlighted;
-  };
-
   const copyToClipboard = () => {
     const text = filteredLines.map((line) => `[${line.timestamp}] ${line.speaker}: ${line.text}`).join("\n");
     navigator.clipboard.writeText(text);
@@ -49,12 +96,22 @@ export function TranscriptViewer({ lines, keywords = [], highlightedKeywords = [
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const activeKeywords = highlightedKeywords.length > 0 ? highlightedKeywords : searchQuery ? [searchQuery] : [];
+
+  if (!lines.length) {
+    return (
+      <div className="flex items-center justify-center rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] py-12 text-sm text-[#64748B]">
+        No transcript available
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Search and controls */}
       <div className="flex gap-2">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
           <input
             type="text"
             placeholder="Search transcript..."
@@ -63,7 +120,10 @@ export function TranscriptViewer({ lines, keywords = [], highlightedKeywords = [
             className="input pl-10"
           />
         </div>
-        <button onClick={copyToClipboard} className="inline-flex items-center gap-2 rounded-lg border border-slate-700/50 bg-slate-900/30 px-3 py-2 text-sm font-medium text-primary transition hover:bg-slate-900/50">
+        <button
+          onClick={copyToClipboard}
+          className="inline-flex items-center gap-2 rounded-lg border border-[#D8E1EE] bg-white px-3 py-2 text-sm font-medium text-[#2563EB] transition hover:bg-[#EFF6FF]"
+        >
           <Copy className="h-4 w-4" />
           {copied ? "Copied!" : "Copy"}
         </button>
@@ -74,10 +134,10 @@ export function TranscriptViewer({ lines, keywords = [], highlightedKeywords = [
         <div className="space-y-4 max-h-96 overflow-y-auto">
           {filteredLines.length > 0 ? (
             filteredLines.map((line, index) => (
-              <div key={index} className="flex gap-4 border-b border-slate-800/30 pb-4 last:border-0 last:pb-0">
+              <div key={index} className="flex gap-4 border-b border-[#EEF3F9] pb-4 last:border-0 last:pb-0">
                 {/* Timestamp */}
                 <div className="flex-shrink-0">
-                  <span className="font-mono text-xs text-muted">{line.timestamp}</span>
+                  <span className="font-mono text-xs text-[#94A3B8]">{line.timestamp}</span>
                 </div>
 
                 {/* Speaker badge */}
@@ -88,31 +148,15 @@ export function TranscriptViewer({ lines, keywords = [], highlightedKeywords = [
                 </div>
 
                 {/* Text */}
-                <div className="flex-1 text-sm leading-relaxed text-slate-200">
-                  {highlightedKeywords.length > 0 ? (
-                    <span>
-                      {highlightedKeywords.reduce((acc, keyword) => {
-                        const regex = new RegExp(`(${keyword})`, "gi");
-                        return acc.split(regex).map((part, i) => {
-                          if (regex.test(part)) {
-                            return (
-                              <span key={i} className="bg-primary/30 font-semibold text-primary cursor-pointer hover:bg-primary/50" onClick={() => onKeywordClick?.(part)}>
-                                {part}
-                              </span>
-                            );
-                          }
-                          return part;
-                        });
-                      }, line.text)}
-                    </span>
-                  ) : (
-                    line.text
-                  )}
+                <div className="flex-1 text-sm leading-relaxed text-[#334155]">
+                  {activeKeywords.length > 0
+                    ? highlightSegments(line.text, activeKeywords, onKeywordClick)
+                    : line.text}
                 </div>
               </div>
             ))
           ) : (
-            <div className="py-8 text-center text-sm text-soft">No results found for "{searchQuery}"</div>
+            <div className="py-8 text-center text-sm text-[#94A3B8]">No results found for &ldquo;{searchQuery}&rdquo;</div>
           )}
         </div>
       </Card>
@@ -120,7 +164,7 @@ export function TranscriptViewer({ lines, keywords = [], highlightedKeywords = [
       {/* Keywords */}
       {keywords.length > 0 && (
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">Keywords</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#94A3B8] mb-2">Keywords</p>
           <div className="flex flex-wrap gap-2">
             {keywords.map((keyword) => (
               <Badge key={keyword} tone="info" size="md">

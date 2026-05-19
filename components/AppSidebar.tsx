@@ -45,25 +45,25 @@ export function AppSidebar({ user, admin = false }: { user: ShellUser; admin?: b
       ];
 
   return (
-    <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-72 shrink-0 border-r border-white/10 bg-[#070b13]/88 p-4 backdrop-blur-xl lg:flex lg:flex-col">
-      <div className="mb-5 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+    <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 border-r border-[#D8E1EE] bg-white p-4 shadow-sm lg:flex lg:flex-col">
+      <div className="mb-5 rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-3">
         <button className="flex w-full items-center justify-between gap-3 text-left">
           <span className="flex min-w-0 items-center gap-3">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-sky-300/20 bg-sky-300/10 text-sm font-semibold text-sky-100">CX</span>
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#2563EB]/20 bg-[#EFF6FF] text-sm font-bold text-[#2563EB]">CX</span>
             <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-slate-100">{admin ? "Admin Console" : "Customer Workspace"}</span>
-              <span className="block truncate text-xs text-slate-500">CallAudit X Cloud</span>
+              <span className="block truncate text-sm font-semibold text-[#0F172A]">{admin ? "Admin Console" : "Customer Workspace"}</span>
+              <span className="block truncate text-xs text-[#94A3B8]">CallAudit X</span>
             </span>
           </span>
-          <ChevronDown className="h-4 w-4 text-slate-500" />
+          <ChevronDown className="h-4 w-4 text-[#94A3B8]" />
         </button>
       </div>
 
       <nav className="space-y-6">
         {groups.map((group) => (
           <div key={group.label}>
-            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">{group.label}</p>
-            <div className="space-y-1">
+            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">{group.label}</p>
+            <div className="space-y-0.5">
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href || (item.href !== "/dashboard" && item.href !== "/admin" && pathname.startsWith(item.href));
@@ -72,11 +72,11 @@ export function AppSidebar({ user, admin = false }: { user: ShellUser; admin?: b
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition hover:bg-white/[0.055] hover:text-slate-100",
-                      active && "border border-sky-300/14 bg-sky-300/10 text-sky-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                      "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#64748B] transition hover:bg-[#F5F7FB] hover:text-[#0F172A]",
+                      active && "bg-[#EFF6FF] text-[#2563EB] font-semibold border border-[#DBEAFE]"
                     )}
                   >
-                    <Icon className={cn("h-4 w-4 text-slate-500 group-hover:text-sky-200", active && "text-sky-200")} />
+                    <Icon className={cn("h-4 w-4 text-[#94A3B8] group-hover:text-[#2563EB]", active && "text-[#2563EB]")} />
                     {item.label}
                   </Link>
                 );
@@ -87,18 +87,18 @@ export function AppSidebar({ user, admin = false }: { user: ShellUser; admin?: b
       </nav>
 
       <div className="mt-auto space-y-3">
-        <div className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-slate-200">
-            <ShieldCheck className="h-4 w-4 text-emerald-300" />
+        <div className="rounded-xl border border-[#D8E1EE] bg-[#F0FDF4] p-4">
+          <div className="flex items-center gap-2 text-sm font-medium text-[#15803D]">
+            <ShieldCheck className="h-4 w-4" />
             Audit workspace
           </div>
-          <p className="mt-2 text-xs leading-5 text-slate-500">Role-based access, local audio storage, mock-first AI, and database analytics.</p>
+          <p className="mt-2 text-xs leading-5 text-[#64748B]">Role-based access, local audio storage, mock-first AI, and database analytics.</p>
         </div>
-        <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-slate-800 text-sm font-semibold text-slate-200">{user.name.slice(0, 1).toUpperCase()}</div>
+        <div className="flex items-center gap-3 rounded-xl border border-[#D8E1EE] bg-[#F5F7FB] p-3">
+          <div className="grid h-9 w-9 place-items-center rounded-full bg-[#EFF6FF] border border-[#DBEAFE] text-sm font-bold text-[#2563EB]">{user.name.slice(0, 1).toUpperCase()}</div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-slate-200">{user.name}</p>
-            <p className="truncate text-xs text-slate-500">{user.email}</p>
+            <p className="truncate text-sm font-semibold text-[#0F172A]">{user.name}</p>
+            <p className="truncate text-xs text-[#64748B]">{user.email}</p>
           </div>
         </div>
       </div>
