@@ -2,16 +2,16 @@ import { NextResponse } from "next/server";
 import { Role } from "@prisma/client";
 import { analyzeCall } from "@/lib/ai/analyze-call";
 import { getSession } from "@/lib/auth";
-import { getOrCreateDemoCustomer } from "@/lib/demo-user";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(_: Request, { params }: { params: { callId: string } }) {
   try {
     const session = await getSession();
-    const demoUser = session ? null : await getOrCreateDemoCustomer();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const where = {
       id: params.callId,
-      ...(session?.role === Role.ADMIN ? {} : { userId: session?.id || demoUser!.id })
+      ...(session.role === Role.ADMIN ? {} : { userId: session.id })
     };
     const call = await prisma.call.findFirst({ where });
     if (!call) return NextResponse.json({ error: "Call not found." }, { status: 404 });

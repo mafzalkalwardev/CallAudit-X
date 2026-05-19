@@ -2,14 +2,16 @@ import { CategoryBar, CategoryPie, ChartCard, RadialMetric, ScoreBar, SentimentP
 import { PageHeader } from "@/components/ui";
 import { getSession } from "@/lib/auth";
 import { customerAnalytics } from "@/lib/analytics";
-import { getOrCreateDemoCustomer } from "@/lib/demo-user";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
   const session = await getSession();
-  const demoUser = session ? null : await getOrCreateDemoCustomer();
-  const data = await customerAnalytics(session?.id || demoUser!.id);
+  if (!session) {
+    redirect("/login");
+  }
+  const data = await customerAnalytics(session.id);
   return (
     <>
       <PageHeader title="Analytics" subtitle="Charts are built from your real call, report, and verification records." />

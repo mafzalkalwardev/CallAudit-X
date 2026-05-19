@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getOrCreateDemoCustomer } from "@/lib/demo-user";
 import { prisma } from "@/lib/prisma";
 import { saveAudio } from "@/lib/storage";
 
 export async function POST(request: Request) {
   try {
     const session = await getSession();
-    const user = session ? { id: session.id } : await getOrCreateDemoCustomer();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const user = { id: session.id };
     const formData = await request.formData();
     const audioEntries = formData.getAll("audio").filter((entry): entry is File => entry instanceof File && entry.size > 0);
 

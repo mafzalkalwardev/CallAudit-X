@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getOrCreateDemoCustomer } from "@/lib/demo-user";
 import { prisma } from "@/lib/prisma";
 import { verificationSchema } from "@/lib/validation";
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const session = await getSession();
-  const demoUser = session ? null : await getOrCreateDemoCustomer();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const contentType = request.headers.get("content-type") || "";
   const raw = contentType.includes("application/json") ? await request.json() : Object.fromEntries((await request.formData()).entries());
   const input = verificationSchema.parse(raw);
-  const userId = session?.id || demoUser!.id;
+  
+  const userId = session.id;
   const call = await prisma.call.findFirst({ where: { id: params.id, userId } });
   if (!call) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (input.status === "incorrect" && !input.correctedCategoryId) return NextResponse.json({ error: "Correct category is required" }, { status: 400 });

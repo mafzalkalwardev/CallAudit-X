@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Search, UploadCloud, X } from "lucide-react";
 import { Badge, LinkButton, PageHeader } from "@/components/ui";
 import { getSession } from "@/lib/auth";
-import { getOrCreateDemoCustomer } from "@/lib/demo-user";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +15,12 @@ function statusTone(status?: string) {
 
 export default async function CallsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
   const session = await getSession();
-  const demoUser = session ? null : await getOrCreateDemoCustomer();
+  if (!session) {
+    redirect("/login");
+  }
   const allCalls = await prisma.call.findMany({
     where: {
-      userId: session?.id || demoUser!.id,
+      userId: session.id,
       report: {
         category: { name: searchParams.category || undefined },
         sentiment: (searchParams.sentiment as any) || undefined
