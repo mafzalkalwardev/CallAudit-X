@@ -5,6 +5,14 @@ export const metadata: Metadata = {
   title: "CallAudit X – AI-Powered Call Auditing Platform",
   description: "Upload calls, get AI transcription and audit reports, verify findings, and track quality analytics. Built for sales, support, and QA teams.",
   keywords: "call auditing, AI transcription, QA analytics, call quality, sales coaching",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" }
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "CallAudit X",
     description: "AI-powered call auditing for teams that handle hundreds of calls.",
