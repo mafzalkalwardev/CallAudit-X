@@ -26,6 +26,10 @@ Transcription · Scoring · Analytics · SaaS
 
 CallAudit X is a Next.js SaaS MVP for AI-assisted call auditing. It lets customers upload recorded calls, generate transcripts and structured QA reports, verify or correct AI results, and review database-backed analytics. Admins can manage users, categories, calls, security logs, and payment records.
 
+## Screenshots
+
+![Application screenshot](docs/screenshots/app.png)
+
 ## Features
 
 - Real customer/admin login with bcrypt password hashes and HTTP-only JWT cookies
