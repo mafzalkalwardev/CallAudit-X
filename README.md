@@ -1,34 +1,70 @@
 <div align="center">
 
-# 📊 CallAudit X
+# CallAudit-X
 
-**AI-powered call auditing, transcription, scoring, and analytics.**
+<img src="https://readme-typing-svg.demolab.com?font=Inter&weight=700&size=28&duration=2800&pause=700&color=7C3AED&center=true&vCenter=true&width=900&lines=AI+Call+Auditing+SaaS;Transcription+%2B+Quality+Scoring;Review+Workflows+%2B+Analytics;Built+for+call-center+performance" alt="Typing SVG" />
 
-Transcription · Scoring · Analytics · SaaS
+<p>
+  <img src="https://komarev.com/ghpvc/?username=mafzalkalwardev&label=Project%20Views&color=7c3aed&style=for-the-badge" alt="Project views" />
+  <img src="https://img.shields.io/github/stars/mafzalkalwardev/CallAudit-X?style=for-the-badge&color=22c55e" alt="GitHub stars" />
+  <img src="https://img.shields.io/github/forks/mafzalkalwardev/CallAudit-X?style=for-the-badge&color=f59e0b" alt="GitHub forks" />
+  <img src="https://img.shields.io/github/license/mafzalkalwardev/CallAudit-X?style=for-the-badge&color=64748b" alt="License" />
+</p>
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
-[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge)](CONTRIBUTING.md)
+<p>
+  <img src="https://skillicons.dev/icons?i=ts,react,nodejs,postgres,docker" alt="Skill icons" />
+</p>
+
+<p>
+  <strong>AI call auditing SaaS for transcription, quality scoring, review workflows, analytics dashboards, and call-center performance insights.</strong>
+</p>
 
 </div>
 
 ---
 
-## 🐍 Contribution graph
+## Trophy Cards
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mafzalkalwardev/mafzalkalwardev/output/github-contribution-grid-snake-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/mafzalkalwardev/mafzalkalwardev/output/github-contribution-grid-snake.svg" />
-  <img alt="Contribution snake" src="https://raw.githubusercontent.com/mafzalkalwardev/mafzalkalwardev/output/github-contribution-grid-snake.svg" />
-</picture>
+<div align="center">
+  <img src="https://github-profile-trophy.vercel.app/?username=mafzalkalwardev&theme=algolia&no-frame=true&no-bg=true&margin-w=12&margin-h=12&column=4" alt="GitHub trophy cards" />
+</div>
 
 ---
 
-CallAudit X is a Next.js SaaS MVP for AI-assisted call auditing. It lets customers upload recorded calls, generate transcripts and structured QA reports, verify or correct AI results, and review database-backed analytics. Admins can manage users, categories, calls, security logs, and payment records.
+## Stats Cards
 
-## Screenshots
+<div align="center">
+  <img height="165" src="https://github-readme-stats-sigma-five.vercel.app/api?username=mafzalkalwardev&show_icons=true&theme=tokyonight&hide_border=true&rank_icon=github" alt="GitHub stats" />
+  <img height="165" src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=mafzalkalwardev&layout=compact&theme=tokyonight&hide_border=true" alt="Top languages" />
+</div>
 
-![Application screenshot](docs/screenshots/app.png)
+---
+
+## Activity Graph
+
+<div align="center">
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=mafzalkalwardev&theme=react-dark&hide_border=true&area=true" alt="GitHub activity graph" />
+</div>
+
+---
+
+## Contribution Snake
+
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mafzalkalwardev/google-voice-dispatch-agent/output/github-contribution-grid-snake-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/mafzalkalwardev/google-voice-dispatch-agent/output/github-contribution-grid-snake.svg">
+    <img alt="Contribution snake" src="https://raw.githubusercontent.com/mafzalkalwardev/google-voice-dispatch-agent/output/github-contribution-grid-snake.svg">
+  </picture>
+</div>
+
+---
+
+## SEO Keywords
+
+`call audit` `AI transcription` `QA scoring` `call center analytics`
+
+---
 
 ## Features
 
