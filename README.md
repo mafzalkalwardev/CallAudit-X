@@ -154,7 +154,7 @@ npx tsc --noEmit --pretty false --incremental false
 
 **Author:** Muhammad Afzal Kalwar ([@mafzalkalwardev](https://github.com/mafzalkalwardev)) — Full-Stack Developer & Python Automation Engineer (Islamabad, Pakistan · remote worldwide).
 
-**Hire / contact:** [Email](mailto:kalwarmuhammadafzal3@gmail.com) · [WhatsApp](https://wa.me/923079670503) · [Portfolio](https://mafzalkalwardev.github.io) · [LinkedIn](https://www.linkedin.com/in/muhammad-afzal-2670b527b/)
+**Hire / contact:** GitHub [@mafzalkalwardev](https://github.com/mafzalkalwardev) · LinkedIn [@mafzalkalwardev](https://www.linkedin.com/in/mafzalkalwardev) · WhatsApp [+92 307 9670503](https://wa.me/923079670503) · [Portfolio](https://mafzalkalwardev.github.io) · [Email](mailto:kalwarmuhammadafzal3@gmail.com)
 
 ### Who is this for?
 Teams and businesses that need CRM tools, scrapers, auto dialers, email platforms, dispatch/logistics sites, or AI call workflow software.
@@ -171,3 +171,14 @@ Muhammad Afzal Kalwar, mafzalkalwardev, CallAudit-X, full-stack developer, Pytho
 
 </details>
 
+---
+
+## Contact
+
+| Channel | Handle / Number |
+|:--|:--|
+| GitHub | [@mafzalkalwardev](https://github.com/mafzalkalwardev) |
+| LinkedIn | [@mafzalkalwardev](https://www.linkedin.com/in/mafzalkalwardev) |
+| WhatsApp | [+92 307 9670503](https://wa.me/923079670503) |
+| Portfolio | [mafzalkalwardev.github.io](https://mafzalkalwardev.github.io) |
+| Email | [kalwarmuhammadafzal3@gmail.com](mailto:kalwarmuhammadafzal3@gmail.com) |
