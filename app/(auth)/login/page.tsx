@@ -189,6 +189,9 @@ export default function LoginPage() {
                 Login as Admin
               </button>
             </div>
+            <p className="mt-3 text-center text-[11px] leading-4 text-[#64748B]">
+              Demo accounts are created on first sign-in. Analysis uses mock AI when OpenAI is not configured.
+            </p>
           </div>
         </GlassCard>
 

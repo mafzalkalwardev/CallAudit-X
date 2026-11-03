@@ -1,7 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { defaultCategories } from "@/lib/categories";
 import { prisma } from "@/lib/prisma";
-import { publicAudioPath } from "@/lib/storage";
 import { mockAnalysis, mockAudit, mockTranscript } from "@/lib/ai/mock-ai";
 import { auditWithOpenAI, hasOpenAIKey, transcribeWithOpenAI } from "@/lib/ai/openai-ai";
 
@@ -36,7 +35,7 @@ export async function analyzeCall(callId: string) {
     let usedRealTranscription = false;
     if (hasOpenAIKey()) {
       try {
-        transcript = await transcribeWithOpenAI(publicAudioPath(call.audioUrl));
+        transcript = await transcribeWithOpenAI(call.audioUrl);
         usedRealTranscription = true;
       } catch (error) {
         console.warn(`OpenAI transcription failed for call ${call.id}; falling back to mock transcription.`, error);

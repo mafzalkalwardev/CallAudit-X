@@ -1,8 +1,8 @@
-import { createReadStream } from "fs";
-import OpenAI from "openai";
+import OpenAI, { toFile } from "openai";
 import { Category, Sentiment } from "@prisma/client";
 import { auditSystemPrompt, auditUserPrompt } from "@/lib/ai/prompts";
 import { AuditDraft, CallMetadata, mockAudit, TranscriptSegment } from "@/lib/ai/mock-ai";
+import { readStoredAudio } from "@/lib/storage";
 
 let client: OpenAI | null = null;
 
@@ -41,13 +41,14 @@ export function hasOpenAIKey() {
   return Boolean(process.env.OPENAI_API_KEY);
 }
 
-export async function transcribeWithOpenAI(audioPath: string) {
+export async function transcribeWithOpenAI(audioUrl: string) {
   const openai = openaiClient();
   if (!openai) throw new Error("OPENAI_API_KEY is not configured.");
 
   const model = process.env.OPENAI_TRANSCRIPTION_MODEL || "gpt-4o-transcribe";
+  const audio = await readStoredAudio(audioUrl);
   const transcription = await openai.audio.transcriptions.create({
-    file: createReadStream(audioPath) as any,
+    file: await toFile(audio.data, audio.fileName),
     model,
     response_format: "json"
   });
